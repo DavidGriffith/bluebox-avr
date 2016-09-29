@@ -69,9 +69,6 @@ const unsigned char sine_table[] PROGMEM = {
 0x33, 0x34, 0x36, 0x37, 0x39, 0x3a, 0x3c, 0x3d
 };
 
-
-typedef short bool;
-
 #define TRUE	1
 #define FALSE	0
 
@@ -112,8 +109,10 @@ do { \
 #define TONE_LENGTH_FAST	75
 #define TONE_LENGTH_SLOW	120
 
-short tone_mode = MODE_MF;
-short tone_length = TONE_LENGTH_FAST;
+typedef uint8_t bool;
+
+uint8_t tone_mode = MODE_MF;
+uint8_t tone_length = TONE_LENGTH_FAST;
 bool  playback_mode = FALSE;
 
 uint16_t tone_a_step, tone_b_step;
@@ -122,8 +121,8 @@ uint16_t tone_a_place, tone_b_place;
 void  init_ports(void);
 void  init_settings(void);
 void  init_adc(void);
-short getkey(void);
-void  process(short);
+uint8_t getkey(void);
+void  process(uint8_t);
 void  play(uint32_t, uint32_t, uint32_t);
 void  sleep_ms(uint16_t ms);
 void  tick(void);
@@ -133,7 +132,7 @@ static volatile uint8_t millisec_flag;
 
 int main(void)
 {
-	short key;
+	uint8_t key;
 
 //	init_settings();
 	init_ports();
@@ -183,13 +182,13 @@ int main(void)
 
 
 /*
- * void process(short key)
+ * void process(uint8_t key)
  *
  * Process regular keystroke
  *
  */
 
-void process(short key)
+void process(uint8_t key)
 {
 	if (key == 0) return;
 
@@ -214,7 +213,7 @@ void process(short key)
 		case 12: play(tone_length, 1500, 1700); break;	// ST
 		case 13: play(SEIZE_LENGTH, 2600, 2600);	// 2600
 			 if (playback_mode == TRUE)
-				_delay_ms(SEIZE_PAUSE);
+				sleep_ms(SEIZE_PAUSE);
 			break;
 		}
 	} else if (tone_mode == MODE_DTMF) {
@@ -233,7 +232,7 @@ void process(short key)
 		case 12: play(tone_length, 941, 1477); break;	// #
 		case 13: play(SEIZE_LENGTH, 2600, 2600);	// 2600
 			 if (playback_mode == TRUE)
-				_delay_ms(SEIZE_PAUSE);
+				sleep_ms(SEIZE_PAUSE);
 			break;
 		}
 	}
@@ -258,8 +257,7 @@ void play(uint32_t duration, uint32_t freq_a, uint32_t freq_b)
 	tone_a_place = 0;
 	tone_b_place = 0;
 	TONES_ON();
-//	sleep_ms(duration);
-	_delay_ms(50);
+	sleep_ms(duration);
 	TONES_OFF();
 }
 
@@ -271,7 +269,9 @@ void play(uint32_t duration, uint32_t freq_a, uint32_t freq_b)
  * a factor of around four.  I don't know if this is particular to the
  * ATtiny line or if there's a problem in the Linux AVR development
  * tools.  Anyhow, this function simply holds up execution by the
- * supplied number of milliseconds.
+ * supplied number of milliseconds.  The tick() function can be
+ * convenient for monitoring buttons and doing debouncing.  More on that
+ * later.
  *
  */
 void sleep_ms(uint16_t milliseconds)
@@ -287,6 +287,7 @@ void sleep_ms(uint16_t milliseconds)
 
 void tick(void) {}
 
+
 ISR(TIM0_OVF_vect)
 {
 	OCR0A = pgm_read_byte(&(sine_table[(tone_a_place >> STEP_SHIFT)])) +
@@ -297,18 +298,15 @@ ISR(TIM0_OVF_vect)
 	if(tone_b_place >= (SINE_SAMPLES << STEP_SHIFT)) tone_b_place -= (SINE_SAMPLES << STEP_SHIFT);
 
 	// count milliseconds
-/*
 	millisec_counter--;
 	if(millisec_counter == 0) {
 		millisec_counter = OVERFLOW_PER_MILLISEC;
 		millisec_flag = 1;
 	}
-*/
 }
 
-
 /*
- * short getkey(void)
+ * uint8_t getkey(void)
  *
  * Returns the number of key pressed (1-13) or 0 if no key was pressed
  *
@@ -323,15 +321,14 @@ ISR(TIM0_OVF_vect)
  * key has been pressed.
  *
  */
-short getkey(void)
+uint8_t getkey(void)
 {
-	short key;
+	uint8_t key;
 	while (1) {
 		ADCSRA |= (1 << ADSC);		// start ADC measurement
 		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
-//		sleep_ms(DEBOUNCE_TIME);	// delay for debounce
-		_delay_ms(DEBOUNCE_TIME);	// delay for debounce
-		key = ADCH;
+		_delay_ms(DEBOUNCE_TIME/3);	// delay for debounce
+		key = ADCH;			// sleep_ms() doesn't work here
 		ADCSRA |= (1 << ADSC);		// start ADC measurement
 		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
 		if (key != ADCH) continue;	// bouncy result, try again
@@ -371,7 +368,7 @@ short getkey(void)
 		break;
 	}
 	return 0;
-}  /* short getkey() */
+}  /* uint8_t getkey() */
 
 
 void init_ports(void)
@@ -383,6 +380,7 @@ void init_ports(void)
 	TIMSK |= (1<<TOIE0);
 	sei();
 }
+
 
 /*
  * void init_adc(void)
