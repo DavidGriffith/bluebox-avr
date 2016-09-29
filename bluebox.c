@@ -84,6 +84,7 @@ const unsigned char sine_table[] PROGMEM = {
 
 #define SINE_SAMPLES	255UL
 #define TICKS_PER_CYCLE	256UL
+#define SINE_MIDPOINT	0x7F	// After decoupling, this is 0V of the sine
 #define STEP_SHIFT	6
 #define SAMPLES_PER_HERTZ_TIMES_256	(SINE_SAMPLES * (TICKS_PER_CYCLE << STEP_SHIFT)) / (F_CPU / 256)
 #define OVERFLOW_PER_MILLISEC (F_CPU / TICKS_PER_CYCLE / 1000)
@@ -114,6 +115,7 @@ typedef uint8_t bool;
 uint8_t tone_mode = MODE_MF;
 uint8_t tone_length = TONE_LENGTH_FAST;
 bool  playback_mode = FALSE;
+bool  tones_on = FALSE;
 
 uint16_t tone_a_step, tone_b_step;
 uint16_t tone_a_place, tone_b_place;
@@ -139,6 +141,11 @@ int main(void)
 	init_adc();
 
 	millisec_flag = 0;
+
+
+	// Start TIMER0
+	TCCR0A = ((1<<COM0A1)|(1<<WGM01)|(1<<WGM00));
+	TCCR0B = (TIMER0_PRESCALE_1);
 
 	key = getkey();
 
@@ -256,9 +263,11 @@ void play(uint32_t duration, uint32_t freq_a, uint32_t freq_b)
 
 	tone_a_place = 0;
 	tone_b_place = 0;
-	TONES_ON();
+//	TONES_ON();
+	tones_on = TRUE;
 	sleep_ms(duration);
-	TONES_OFF();
+//	TONES_OFF();
+	tones_on = FALSE;
 }
 
 
@@ -290,12 +299,14 @@ void tick(void) {}
 
 ISR(TIM0_OVF_vect)
 {
+	if (tones_on) {
 	OCR0A = pgm_read_byte(&(sine_table[(tone_a_place >> STEP_SHIFT)])) +
 		pgm_read_byte(&(sine_table[(tone_b_place >> STEP_SHIFT)]));
 	tone_a_place += tone_a_step;
 	tone_b_place += tone_b_step;
 	if(tone_a_place >= (SINE_SAMPLES << STEP_SHIFT)) tone_a_place -= (SINE_SAMPLES << STEP_SHIFT);
 	if(tone_b_place >= (SINE_SAMPLES << STEP_SHIFT)) tone_b_place -= (SINE_SAMPLES << STEP_SHIFT);
+	} else OCR0A = SINE_MIDPOINT;
 
 	// count milliseconds
 	millisec_counter--;
@@ -327,7 +338,7 @@ uint8_t getkey(void)
 	while (1) {
 		ADCSRA |= (1 << ADSC);		// start ADC measurement
 		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
-		_delay_ms(DEBOUNCE_TIME/3);	// delay for debounce
+		sleep_ms(DEBOUNCE_TIME/3);	// delay for debounce
 		key = ADCH;			// sleep_ms() doesn't work here
 		ADCSRA |= (1 << ADSC);		// start ADC measurement
 		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
