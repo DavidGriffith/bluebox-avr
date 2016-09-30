@@ -175,22 +175,14 @@ int main(void)
 
 	key = getkey();
 
-	// Temporarily toggle tone mode if 2600 key held at power-up
-	// (until next power-up)
-
-	if (key == KEY_SEIZE) {
-		if (tone_mode == MODE_MF)
-			tone_mode = MODE_REDBOX;
-		else
-			tone_mode = MODE_MF;
-	}
-
+	switch (key) {
+	case KEY_1:	tone_mode = MODE_MF; break;
+	case KEY_2:	tone_mode = MODE_DTMF; break;
+	case KEY_3:	tone_mode = MODE_REDBOX; break;
 	// Toggle power-up tone mode and store in EE if '*' held at power-up
-	if (key == KEY_STAR) {
-	}
-
+	case KEY_STAR:	break;
 	// Toggle power-up tone length and store in EE if '#' held at power-up
-	if (key == KEY_HASH) {
+	case KEY_HASH:	break;
 	}
 
 	if (key > 0) play(1000, 1700, 1700);
