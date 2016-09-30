@@ -111,6 +111,20 @@ do { \
 #define TONE_LENGTH_FAST	75
 #define TONE_LENGTH_SLOW	120
 
+#define KEY_1		1
+#define KEY_2		2
+#define KEY_3		3
+#define KEY_4		4
+#define KEY_5		5
+#define KEY_6		6
+#define KEY_7		7
+#define KEY_8		8
+#define KEY_9		9
+#define KEY_STAR	10
+#define KEY_0		11
+#define KEY_HASH	12
+#define KEY_SEIZE	13
+
 typedef uint8_t bool;
 
 uint8_t tone_mode = MODE_MF;
@@ -153,7 +167,7 @@ int main(void)
 	// Temporarily toggle tone mode if 2600 key held at power-up
 	// (until next power-up)
 
-	if (key == 13) {
+	if (key == KEY_SEIZE) {
 		if (tone_mode == MODE_MF)
 			tone_mode = MODE_REDBOX;
 		else
@@ -162,12 +176,12 @@ int main(void)
 	}
 
 	// Toggle power-up tone mode and store in EE if '*' held at power-up
-	if (key == 10) {
+	if (key == KEY_STAR) {
 		play(1000, 1700, 1700);
 	}
 
 	// Toggle power-up tone length and store in EE if '#' held at power-up
-	if (key == 12) {
+	if (key == KEY_HASH) {
 		play(1000, 1700, 1700);
 	}
 
@@ -203,51 +217,51 @@ void process(uint8_t key)
 
 	if (tone_mode == MODE_MF) {
 		switch (key) {
-		case 1: play(tone_length, 700, 900); break;
-		case 2: play(tone_length, 700, 1100); break;
-		case 3: play(tone_length, 900, 1100); break;
-		case 4: play(tone_length, 700, 1300); break;
-		case 5: play(tone_length, 900, 1300); break;
-		case 6: play(tone_length, 1100, 1300); break;
-		case 7: play(tone_length, 700, 1500); break;
-		case 8: play(tone_length, 900, 1500); break;
-		case 9: play(tone_length, 1100, 1500); break;
-		case 10: play(KP_LENGTH, 1100, 1700); break;	// KP
-		case 11: play(tone_length, 1300, 1500); break;	// 0
-		case 12: play(tone_length, 1500, 1700); break;	// ST
-		case 13: play(SEIZE_LENGTH, 2600, 2600);	// 2600
+		case KEY_1: play(tone_length, 700, 900); break;
+		case KEY_2: play(tone_length, 700, 1100); break;
+		case KEY_3: play(tone_length, 900, 1100); break;
+		case KEY_4: play(tone_length, 700, 1300); break;
+		case KEY_5: play(tone_length, 900, 1300); break;
+		case KEY_6: play(tone_length, 1100, 1300); break;
+		case KEY_7: play(tone_length, 700, 1500); break;
+		case KEY_8: play(tone_length, 900, 1500); break;
+		case KEY_9: play(tone_length, 1100, 1500); break;
+		case KEY_STAR: play(KP_LENGTH, 1100, 1700); break;
+		case KEY_0: play(tone_length, 1300, 1500); break;
+		case KEY_HASH: play(tone_length, 1500, 1700); break;
+		case KEY_SEIZE: play(SEIZE_LENGTH, 2600, 2600);
 			 if (playback_mode == TRUE)
 				sleep_ms(SEIZE_PAUSE);
 			break;
 		}
 	} else if (tone_mode == MODE_DTMF) {
 		switch (key) {
-		case 1: play(tone_length, 697, 1209); break;
-		case 2: play(tone_length, 697, 1336); break;
-		case 3: play(tone_length, 697, 1477); break;
-		case 4: play(tone_length, 770, 1209); break;
-		case 5: play(tone_length, 770, 1336); break;
-		case 6: play(tone_length, 770, 1477); break;
-		case 7: play(tone_length, 852, 1209); break;
-		case 8: play(tone_length, 852, 1336); break;
-		case 9: play(tone_length, 852, 1477); break;
-		case 10: play(tone_length, 941, 1209); break;	// *
-		case 11: play(tone_length, 941, 1336); break;	// 0
-		case 12: play(tone_length, 941, 1477); break;	// #
-		case 13: play(SEIZE_LENGTH, 2600, 2600);	// 2600
+		case KEY_1: play(tone_length, 697, 1209); break;
+		case KEY_2: play(tone_length, 697, 1336); break;
+		case KEY_3: play(tone_length, 697, 1477); break;
+		case KEY_4: play(tone_length, 770, 1209); break;
+		case KEY_5: play(tone_length, 770, 1336); break;
+		case KEY_6: play(tone_length, 770, 1477); break;
+		case KEY_7: play(tone_length, 852, 1209); break;
+		case KEY_8: play(tone_length, 852, 1336); break;
+		case KEY_9: play(tone_length, 852, 1477); break;
+		case KEY_STAR: play(tone_length, 941, 1209); break;
+		case KEY_0: play(tone_length, 941, 1336); break;
+		case KEY_HASH: play(tone_length, 941, 1477); break;
+		case KEY_SEIZE: play(SEIZE_LENGTH, 2600, 2600);
 			 if (playback_mode == TRUE)
 				sleep_ms(SEIZE_PAUSE);
 			break;
 		}
 	} else if (tone_mode == MODE_REDBOX) {
 		switch (key) {
-		case 1: play(66, 1700, 2200);	// Nickel
+		case KEY_1: play(66, 1700, 2200);	// Nickel
 			break;
-		case 2: play(66, 1700, 2200);	// Dime
+		case KEY_2: play(66, 1700, 2200);	// Dime
 			sleep_ms(66);
 			play(66, 1700, 2200);
 			break;
-		case 3: play(33, 1700, 2200);	// Quarter
+		case KEY_3: play(33, 1700, 2200);	// Quarter
 			sleep_ms(33);
 			play(33, 1700, 2200);
 			sleep_ms(33);
@@ -257,11 +271,11 @@ void process(uint8_t key)
 			sleep_ms(33);
 			play(33, 1700, 2200);
 			break;
-		case 4: play(200, 1000, 1000);	// 10 pence
+		case KEY_4: play(200, 1000, 1000);	// 10 pence
 			break;
-		case 5: play(350, 1000, 1000);  // 50 pence
+		case KEY_5: play(350, 1000, 1000);  	// 50 pence
 			break;
-		case 13: play(SEIZE_LENGTH, 2600, 2600);	// 2600
+		case KEY_SEIZE: play(SEIZE_LENGTH, 2600, 2600);
 			 if (playback_mode == TRUE)
 				sleep_ms(SEIZE_PAUSE);
 			break;
@@ -356,46 +370,46 @@ ISR(TIM0_OVF_vect)
  */
 uint8_t getkey(void)
 {
-	uint8_t key;
+	uint8_t voltage;
 	while (1) {
 		ADCSRA |= (1 << ADSC);		// start ADC measurement
 		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
 		sleep_ms(DEBOUNCE_TIME/3);	// delay for debounce
-		key = ADCH;			// sleep_ms() doesn't work here
+		voltage = ADCH;
 		ADCSRA |= (1 << ADSC);		// start ADC measurement
 		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
-		if (key != ADCH) continue;	// bouncy result, try again
-		if (key <  9) return 0;		// no key has been pressed
+		if (voltage != ADCH) continue;	// bouncy result, try again
+		if (voltage <  9) return 0;	// no key has been pressed
 
 		// If we made it this far, then we've got something valid
 		// These values calculated with Vdd = 5 volts DC
 
 		// 4.64 volts.  ADC value = 246
-		if (ADCH > 233 && ADCH <= 256) return 1;
+		if (ADCH > 233 && ADCH <= 256) return KEY_1;
 		// 4.29 volts.  ADC value = 219
-		if (ADCH > 211 && ADCH <= 232) return 2;
+		if (ADCH > 211 && ADCH <= 232) return KEY_2;
 		// 3.93 volts.  ADC value = 201
-		if (ADCH > 192 && ADCH <= 210) return 3;
+		if (ADCH > 192 && ADCH <= 210) return KEY_3;
 		// 3.57 volts.  ADC value = 183
-		if (ADCH > 174 && ADCH <= 191) return 4;
+		if (ADCH > 174 && ADCH <= 191) return KEY_4;
 		// 3.21 volts.  ADC value = 165
-		if (ADCH > 155 && ADCH <= 173) return 5;
+		if (ADCH > 155 && ADCH <= 173) return KEY_5;
 		// 2.86 volts.  ADC value = 146
-		if (ADCH > 137 && ADCH <= 154) return 6;
+		if (ADCH > 137 && ADCH <= 154) return KEY_6;
 		// 2.50 volts.  ADC value = 128
-		if (ADCH > 119 && ADCH <= 136) return 7;
+		if (ADCH > 119 && ADCH <= 136) return KEY_7;
 		// 2.14 volts.  ADC value = 110
-		if (ADCH > 101 && ADCH <= 118) return 8;
+		if (ADCH > 101 && ADCH <= 118) return KEY_8;
 		// 1.79 volts.  ADC value = 91
-		if (ADCH > 82  && ADCH <= 100) return 9;
+		if (ADCH > 82  && ADCH <= 100) return KEY_9;
 		// 1.42 volts.  ADC value = 73
-		if (ADCH > 64  && ADCH <=  81) return 10;
+		if (ADCH > 64  && ADCH <=  81) return KEY_STAR;
 		// 1.07 volts.  ADC value = 55
-		if (ADCH > 46  && ADCH <=  63) return 11;
+		if (ADCH > 46  && ADCH <=  63) return KEY_0;
 		// 0.71 volts.  ADC value = 37
-		if (ADCH > 27  && ADCH <=  45) return 12;
+		if (ADCH > 27  && ADCH <=  45) return KEY_HASH;
 		// 0.357 volts.  ADC value = 18
-		if (ADCH > 9   && ADCH <=  26) return 13;
+		if (ADCH > 9   && ADCH <=  26) return KEY_SEIZE;
 		// We shouldn't get past here,
 		// but if we do, treat it like no key detected.
 		break;
