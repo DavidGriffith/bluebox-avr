@@ -302,31 +302,55 @@ void process(uint8_t key)
 		}
 	} else if (tone_mode == MODE_GREENBOX) {
 		switch(key) {
-		// With 2600 wink
-		case KEY_1: play(90, 2600, 2600);	// coin collect
+		// Using 2600 wink
+		case KEY_1: play(90, 2600, 2600);	// Coin collect
 			sleep_ms(60);
 			play(900, 700, 1100);
 			break;
-		case KEY_2: play(90, 2600, 2600);	// coin return
+		case KEY_2: play(90, 2600, 2600);	// Coin return
 			sleep_ms(60);
 			play(900, 1100, 1700);
 			break;
-		case KEY_3: play(90, 2600, 2600);	// ringback
-			sleep_ms(6);
+		case KEY_3: play(90, 2600, 2600);	// Ringback
+			sleep_ms(60);
 			play(900, 700, 1700);
+			break;
+		case KEY_4: play(90, 2600, 2600);	// Operator attached
+			sleep_ms(60);
+			play(700, 1300, 1500);
+			break;
+		case KEY_5: play(90, 2600, 2600);	// Operator released
+			sleep_ms(60);
+			play(700, 900, 1500);
+			break;
+		case KEY_6: play(90, 2600, 2600);	// Operator release and Coin Collect
+			sleep_ms(60);
+			play(700, 1500, 1700);
 			break;
 		// With MF "8" (900 Hz + 1500 Hz) wink
-		case KEY_4: play(90, 900, 1500);	// coin collect
+		case KEY_7: play(90, 900, 1500);	// Coin collect
 			sleep_ms(60);
 			play(900, 700, 1100);
 			break;
-		case KEY_5: play(90, 900, 1500);	// coin return
+		case KEY_8: play(90, 900, 1500);	// Coin return
 			sleep_ms(60);
 			play(900, 1100, 1700);
 			break;
-		case KEY_6: play(90, 900, 1500);	// ringback
-			sleep_ms(6);
+		case KEY_9: play(90, 900, 1500);	// Ringback
+			sleep_ms(60);
 			play(900, 700, 1700);
+			break;
+		case KEY_STAR: play(90, 900, 1500);	// Operator attached
+			sleep_ms(60);
+			play(700, 1300, 1500);
+			break;
+		case KEY_0: play(90, 900, 1500);	// Operator released
+			sleep_ms(60);
+			play(700, 900, 1500);
+			break;
+		case KEY_HASH: play(90, 900, 1500);	// Operator release and Coin Collect
+			sleep_ms(60);
+			play(700, 1500, 1700);
 			break;
 		case KEY_SEIZE: play(SEIZE_LENGTH, 2600, 2600);
 			 if (playback_mode == TRUE)
