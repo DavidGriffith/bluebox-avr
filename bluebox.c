@@ -617,6 +617,8 @@ void tick(void) {}
  * approximation of a sine wave.  This is smoothed out with a low-pass
  * filter after the signal exits the microcontroller.
  *
+ * This timer also provides the timing for the sleep_ms() function.
+ *
  * Further reading:
  *    https://en.wikipedia.org/wiki/Pulse-width_modulation
  *    https://learn.sparkfun.com/tutorials/pulse-width-modulation
