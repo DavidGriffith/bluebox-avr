@@ -89,6 +89,7 @@ const unsigned char sine_table[] PROGMEM = {
 #define MODE_DTMF	0x02
 #define MODE_REDBOX	0x03
 #define MODE_GREENBOX	0x04
+#define MODE_PULSE	0x05
 
 #define SEIZE_LENGTH	1000
 #define SEIZE_PAUSE	1500
@@ -153,6 +154,7 @@ void  init_adc(void);
 uint8_t getkey(void);
 void  process(uint8_t);
 void  play(uint32_t, uint32_t, uint32_t);
+void  pulse(uint8_t);
 void  sleep_ms(uint16_t ms);
 void  tick(void);
 
@@ -181,6 +183,7 @@ int main(void)
 	case KEY_2:	tone_mode = MODE_DTMF; break;
 	case KEY_3:	tone_mode = MODE_REDBOX; break;
 	case KEY_4:	tone_mode = MODE_GREENBOX; break;
+	case KEY_5:	tone_mode = MODE_PULSE; break;
 	// Toggle power-up tone mode and store in EE if '*' held at power-up
 	case KEY_STAR:	break;
 	// Toggle power-up tone length and store in EE if '#' held at power-up
@@ -357,6 +360,23 @@ void process(uint8_t key)
 				sleep_ms(SEIZE_PAUSE);
 			break;
 		}
+	} else if (tone_mode == MODE_PULSE) {
+		switch (key) {
+		case KEY_1: pulse(1); break;
+		case KEY_2: pulse(2); break;
+		case KEY_3: pulse(3); break;
+		case KEY_4: pulse(4); break;
+		case KEY_5: pulse(5); break;
+		case KEY_6: pulse(6); break;
+		case KEY_7: pulse(7); break;
+		case KEY_8: pulse(8); break;
+		case KEY_9: pulse(9); break;
+		case KEY_0: pulse(10); break;
+		case KEY_SEIZE: play(SEIZE_LENGTH, 2600, 2600);
+			 if (playback_mode == TRUE)
+				sleep_ms(SEIZE_PAUSE);
+			break;
+		}
 	}
 }
 
@@ -382,6 +402,28 @@ void play(uint32_t duration, uint32_t freq_a, uint32_t freq_b)
 	tones_on = TRUE;
 	sleep_ms(duration);
 	tones_on = FALSE;
+}
+
+
+
+/*
+ * void pulse(uint8_t count)
+ *
+ * Send a series of 2600hz pulses with the same timing as a rotary dialer
+ * This pre-dates the US R1/MF signalling system.
+ * This was how John Draper (aka Cap'n Crunch) and Joe Engressia Jr.
+ * (aka Joybubbles) were able to phreak using a whistled 2600hz tone.
+ *
+ */
+void pulse(uint8_t count)
+{
+	uint8_t	i;
+
+	for (i = 0; i < count; i++) {
+		play(66, 2600, 2600);
+		sleep_ms(34);
+	}
+	sleep_ms(500);
 }
 
 
