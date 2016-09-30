@@ -24,12 +24,19 @@
  * networks.  You can still do it on private networks specifically
  * programmed to allow for this kind of thing.
  *
- * Resistor network detection values assume a network of fourteen 1K ohm
+ * Resistor network detection values assume a network of fourteen (for
+ * 13-key keypad) or seventeen (for 16-key keypad) 1K ohm
  * resistors in series, from Vdd to Vss, with a tap between each
  * resistor pair.  Taps at Vdd and Vss are not used, to avoid ADC issues
  * when trying to read at the voltage rails.
  *
  */
+
+/*
+ * Uncomment this to use a 4X4 keypad.
+ * Otherwise, a 3X4 keypad is assumed.
+ */
+//#define KEYPAD_16
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -124,6 +131,24 @@ do { \
 #define TONE_LENGTH_FAST	75
 #define TONE_LENGTH_SLOW	120
 
+#ifdef KEYPAD_16
+#define KEY_1		1
+#define KEY_2		2
+#define KEY_3		3
+#define KEY_A		4
+#define KEY_4		5
+#define KEY_5		6
+#define KEY_6		7
+#define KEY_B		8
+#define KEY_7		9
+#define KEY_8		10
+#define KEY_9		11
+#define KEY_C		12
+#define KEY_STAR	13
+#define KEY_0		14
+#define KEY_HASH	15
+#define KEY_D		16
+#else
 #define KEY_1		1
 #define KEY_2		2
 #define KEY_3		3
@@ -137,6 +162,7 @@ do { \
 #define KEY_0		11
 #define KEY_HASH	12
 #define KEY_SEIZE	13
+#endif
 
 typedef uint8_t bool;
 
@@ -204,6 +230,24 @@ int main(void)
 } /* void main() */
 
 
+#ifdef KEYPAD_16
+/*
+ * void process(uint8_t key)
+ *
+ * Process regular keystroke for 16-key keypad
+ *
+ */
+void process(uint8_t key)
+{
+	// nothing here yet
+}
+
+uint8_t getkey(void)
+{
+	// nothing here yet
+}
+
+#else	// We're using a 13-key keypad
 
 /*
  * void process(uint8_t key)
@@ -378,7 +422,123 @@ void process(uint8_t key)
 			break;
 		}
 	}
+} /* void process(uint8_t key) */
+
+
+/*
+ * uint8_t getkey(void)
+ *
+ * Returns the number of key pressed (1-13) or 0 if no key was pressed
+ *
+ * The resistor ladder feeds a voltage ranging from 0 VDC up to around
+ * 4.64 VDC into the ADC pin.  The AVR then samples it and gives an
+ * 8-bit value proportional to the voltage as compared to Vdd.  Then we
+ * check to see what range that value falls into and thus we know which
+ * button was pressed.
+ *
+ * Any ADC value less than 9 is essentially 0 VDC because of the
+ * pull-down resistor, with some margin for noise.  This means that no
+ * key has been pressed.
+ *
+ */
+uint8_t getkey(void)
+{
+	uint8_t voltage;
+	while (1) {
+		ADCSRA |= (1 << ADSC);		// start ADC measurement
+		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
+		sleep_ms(DEBOUNCE_TIME/3);	// delay for debounce
+		voltage = ADCH;
+		ADCSRA |= (1 << ADSC);		// start ADC measurement
+		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
+		if (voltage != ADCH) continue;	// bouncy result, try again
+		if (voltage <  9) return 0;	// no key has been pressed
+
+		// If we made it this far, then we've got something valid
+		// These values calculated with Vdd = 5 volts DC
+
+		// 4.64 volts.  ADC value = 246
+		if (ADCH > 233 && ADCH <= 256) return KEY_1;
+		// 4.29 volts.  ADC value = 219
+		if (ADCH > 211 && ADCH <= 232) return KEY_2;
+		// 3.93 volts.  ADC value = 201
+		if (ADCH > 192 && ADCH <= 210) return KEY_3;
+		// 3.57 volts.  ADC value = 183
+		if (ADCH > 174 && ADCH <= 191) return KEY_4;
+		// 3.21 volts.  ADC value = 165
+		if (ADCH > 155 && ADCH <= 173) return KEY_5;
+		// 2.86 volts.  ADC value = 146
+		if (ADCH > 137 && ADCH <= 154) return KEY_6;
+		// 2.50 volts.  ADC value = 128
+		if (ADCH > 119 && ADCH <= 136) return KEY_7;
+		// 2.14 volts.  ADC value = 110
+		if (ADCH > 101 && ADCH <= 118) return KEY_8;
+		// 1.79 volts.  ADC value = 91
+		if (ADCH > 82  && ADCH <= 100) return KEY_9;
+		// 1.42 volts.  ADC value = 73
+		if (ADCH > 64  && ADCH <=  81) return KEY_STAR;
+		// 1.07 volts.  ADC value = 55
+		if (ADCH > 46  && ADCH <=  63) return KEY_0;
+		// 0.71 volts.  ADC value = 37
+		if (ADCH > 27  && ADCH <=  45) return KEY_HASH;
+		// 0.357 volts.  ADC value = 18
+		if (ADCH > 9   && ADCH <=  26) return KEY_SEIZE;
+		// We shouldn't get past here,
+		// but if we do, treat it like no key detected.
+		break;
+	}
+	return 0;
+}  /* uint8_t getkey() */
+#endif	// #ifdef KEYPAD_16, #else
+
+
+void init_ports(void)
+{
+	cli();
+	// PB0 is output, PB2 is input
+	// PB3 and PB4 are for the crystal
+	DDRB  = 0b11100011;
+	TIMSK |= (1<<TOIE0);
+	sei();
 }
+
+
+/*
+ * void init_adc(void)
+ *
+ * ADC prescaler needs to be set so that the ADC input frequency is
+ * between 50 -- 200kHz
+ *
+ * For more information, see table 17.5 "ADC Prescaler Selections" in
+ * chapter 17.13.2 "ADCSRA – ADC Control and Status Register A"
+ * (pages 140 and 141 on the complete ATtiny25/45/85 datasheet,
+ * Rev. 2586M–AVR–07/10)
+ *
+ */
+void init_adc()
+{
+	// 8-bit resolution
+	// set ADLAR to 1 to enable the left-shift result
+	// (only bits ADC9..ADC2 are available), then
+	// only reading ADCH is sufficient for 8-bit results (256 values)
+	ADMUX =
+		(1 << ADLAR) |	// left shift result
+		(0 << REFS1) |	// set ref voltage to VCC, bit 1
+		(0 << REFS0) |	// set ref voltage to VCC, bit 0
+		(0 << MUX3)  |	// use ADC1 for input (PB2), MUX bit 3
+		(0 << MUX2)  |  // use ADC1 for input (PB2), MUX bit 2
+		(0 << MUX1)  |  // use ADC1 for input (PB2), MUX bit 1
+		(1 << MUX0);	// use ADC1 for input (PB2), MUX bit 0
+
+	// using a 20MHz crystal.  setting prescaler to 128 gives me a
+	// frequency of 156.250 kHz
+	ADCSRA =
+		(1 << ADEN)  |	// enable ADC
+		(1 << ADPS2) |	// set prescaler to 128, bit 2
+		(1 << ADPS1) |	// set prescaler to 128, bit 1
+		(1 << ADPS0);	// set prescaler to 128, bit 0
+	return;
+} /* void init_adc() */
 
 
 /*
@@ -403,7 +563,6 @@ void play(uint32_t duration, uint32_t freq_a, uint32_t freq_b)
 	sleep_ms(duration);
 	tones_on = FALSE;
 }
-
 
 
 /*
@@ -473,118 +632,3 @@ ISR(TIM0_OVF_vect)
 		millisec_flag = 1;
 	}
 }
-
-
-/*
- * uint8_t getkey(void)
- *
- * Returns the number of key pressed (1-13) or 0 if no key was pressed
- *
- * The resistor ladder feeds a voltage ranging from 0 VDC up to around
- * 4.64 VDC into the ADC pin.  The AVR then samples it and gives an
- * 8-bit value proportional to the voltage as compared to Vdd.  Then we
- * check to see what range that value falls into and thus we know which
- * button was pressed.
- *
- * Any ADC value less than 9 is essentially 0 VDC because of the
- * pull-down resistor, with some margin for noise.  This means that no
- * key has been pressed.
- *
- */
-uint8_t getkey(void)
-{
-	uint8_t voltage;
-	while (1) {
-		ADCSRA |= (1 << ADSC);		// start ADC measurement
-		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
-		sleep_ms(DEBOUNCE_TIME/3);	// delay for debounce
-		voltage = ADCH;
-		ADCSRA |= (1 << ADSC);		// start ADC measurement
-		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
-		if (voltage != ADCH) continue;	// bouncy result, try again
-		if (voltage <  9) return 0;	// no key has been pressed
-
-		// If we made it this far, then we've got something valid
-		// These values calculated with Vdd = 5 volts DC
-
-		// 4.64 volts.  ADC value = 246
-		if (ADCH > 233 && ADCH <= 256) return KEY_1;
-		// 4.29 volts.  ADC value = 219
-		if (ADCH > 211 && ADCH <= 232) return KEY_2;
-		// 3.93 volts.  ADC value = 201
-		if (ADCH > 192 && ADCH <= 210) return KEY_3;
-		// 3.57 volts.  ADC value = 183
-		if (ADCH > 174 && ADCH <= 191) return KEY_4;
-		// 3.21 volts.  ADC value = 165
-		if (ADCH > 155 && ADCH <= 173) return KEY_5;
-		// 2.86 volts.  ADC value = 146
-		if (ADCH > 137 && ADCH <= 154) return KEY_6;
-		// 2.50 volts.  ADC value = 128
-		if (ADCH > 119 && ADCH <= 136) return KEY_7;
-		// 2.14 volts.  ADC value = 110
-		if (ADCH > 101 && ADCH <= 118) return KEY_8;
-		// 1.79 volts.  ADC value = 91
-		if (ADCH > 82  && ADCH <= 100) return KEY_9;
-		// 1.42 volts.  ADC value = 73
-		if (ADCH > 64  && ADCH <=  81) return KEY_STAR;
-		// 1.07 volts.  ADC value = 55
-		if (ADCH > 46  && ADCH <=  63) return KEY_0;
-		// 0.71 volts.  ADC value = 37
-		if (ADCH > 27  && ADCH <=  45) return KEY_HASH;
-		// 0.357 volts.  ADC value = 18
-		if (ADCH > 9   && ADCH <=  26) return KEY_SEIZE;
-		// We shouldn't get past here,
-		// but if we do, treat it like no key detected.
-		break;
-	}
-	return 0;
-}  /* uint8_t getkey() */
-
-
-void init_ports(void)
-{
-	cli();
-	// PB0 is output, PB2 is input
-	// PB3 and PB4 are for the crystal
-	DDRB  = 0b11100011;
-	TIMSK |= (1<<TOIE0);
-	sei();
-}
-
-
-/*
- * void init_adc(void)
- *
- * ADC prescaler needs to be set so that the ADC input frequency is
- * between 50 -- 200kHz
- *
- * For more information, see table 17.5 "ADC Prescaler Selections" in
- * chapter 17.13.2 "ADCSRA – ADC Control and Status Register A"
- * (pages 140 and 141 on the complete ATtiny25/45/85 datasheet,
- * Rev. 2586M–AVR–07/10)
- *
- */
-void init_adc()
-{
-	// 8-bit resolution
-	// set ADLAR to 1 to enable the left-shift result
-	// (only bits ADC9..ADC2 are available), then
-	// only reading ADCH is sufficient for 8-bit results (256 values)
-	ADMUX =
-		(1 << ADLAR) |	// left shift result
-		(0 << REFS1) |	// set ref voltage to VCC, bit 1
-		(0 << REFS0) |	// set ref voltage to VCC, bit 0
-		(0 << MUX3)  |	// use ADC1 for input (PB2), MUX bit 3
-		(0 << MUX2)  |  // use ADC1 for input (PB2), MUX bit 2
-		(0 << MUX1)  |  // use ADC1 for input (PB2), MUX bit 1
-		(1 << MUX0);	// use ADC1 for input (PB2), MUX bit 0
-
-	// using a 20MHz crystal.  setting prescaler to 128 gives me a
-	// frequency of 156.250 kHz
-	ADCSRA =
-		(1 << ADEN)  |	// enable ADC
-		(1 << ADPS2) |	// set prescaler to 128, bit 2
-		(1 << ADPS1) |	// set prescaler to 128, bit 1
-		(1 << ADPS0);	// set prescaler to 128, bit 0
-	return;
-} /* void init_adc() */
