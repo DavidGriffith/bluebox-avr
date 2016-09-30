@@ -208,7 +208,6 @@ int main(void)
  * Process regular keystroke
  *
  */
-
 void process(uint8_t key)
 {
 	if (key == 0) return;
@@ -377,8 +376,10 @@ ISR(TIM0_OVF_vect)
 		pgm_read_byte(&(sine_table[(tone_b_place >> STEP_SHIFT)]));
 	tone_a_place += tone_a_step;
 	tone_b_place += tone_b_step;
-	if(tone_a_place >= (SINE_SAMPLES << STEP_SHIFT)) tone_a_place -= (SINE_SAMPLES << STEP_SHIFT);
-	if(tone_b_place >= (SINE_SAMPLES << STEP_SHIFT)) tone_b_place -= (SINE_SAMPLES << STEP_SHIFT);
+	if(tone_a_place >= (SINE_SAMPLES << STEP_SHIFT))
+		tone_a_place -= (SINE_SAMPLES << STEP_SHIFT);
+	if(tone_b_place >= (SINE_SAMPLES << STEP_SHIFT))
+		tone_b_place -= (SINE_SAMPLES << STEP_SHIFT);
 	} else OCR0A = SINE_MIDPOINT;
 
 	// count milliseconds
@@ -388,6 +389,7 @@ ISR(TIM0_OVF_vect)
 		millisec_flag = 1;
 	}
 }
+
 
 /*
  * uint8_t getkey(void)
