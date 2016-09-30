@@ -241,13 +241,13 @@ void process(uint8_t key)
 		}
 	} else if (tone_mode == MODE_REDBOX) {
 		switch (key) {
-		case 1: play(66, 1700, 2200); break;
-		case 2: play(66, 1700, 2200);
+		case 1: play(66, 1700, 2200);	// Nickel
+			break;
+		case 2: play(66, 1700, 2200);	// Dime
 			sleep_ms(66);
 			play(66, 1700, 2200);
 			break;
-
-		case 3: play(33, 1700, 2200);
+		case 3: play(33, 1700, 2200);	// Quarter
 			sleep_ms(33);
 			play(33, 1700, 2200);
 			sleep_ms(33);
@@ -256,6 +256,15 @@ void process(uint8_t key)
 			play(33, 1700, 2200);
 			sleep_ms(33);
 			play(33, 1700, 2200);
+			break;
+		case 4: play(200, 1000, 1000);	// 10 pence
+			break;
+		case 5: play(350, 1000, 1000);  // 50 pence
+			break;
+		case 13: play(SEIZE_LENGTH, 2600, 2600);	// 2600
+			 if (playback_mode == TRUE)
+				sleep_ms(SEIZE_PAUSE);
+			break;
 		}
 	}
 }
