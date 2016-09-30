@@ -88,6 +88,7 @@ const unsigned char sine_table[] PROGMEM = {
 #define MODE_MF		0x01
 #define MODE_DTMF	0x02
 #define MODE_REDBOX	0x03
+#define MODE_GREENBOX	0x04
 
 #define SEIZE_LENGTH	1000
 #define SEIZE_PAUSE	1500
@@ -179,6 +180,7 @@ int main(void)
 	case KEY_1:	tone_mode = MODE_MF; break;
 	case KEY_2:	tone_mode = MODE_DTMF; break;
 	case KEY_3:	tone_mode = MODE_REDBOX; break;
+	case KEY_4:	tone_mode = MODE_GREENBOX; break;
 	// Toggle power-up tone mode and store in EE if '*' held at power-up
 	case KEY_STAR:	break;
 	// Toggle power-up tone length and store in EE if '#' held at power-up
@@ -281,8 +283,42 @@ void process(uint8_t key)
 				sleep_ms(SEIZE_PAUSE);
 			break;
 		}
+	} else if (tone_mode == MODE_GREENBOX) {
+		switch(key) {
+		// With 2600 wink
+		case KEY_1: play(90, 2600, 2600);	// coin collect
+			sleep_ms(60);
+			play(900, 700, 1100);
+			break;
+		case KEY_2: play(90, 2600, 2600);	// coin return
+			sleep_ms(60);
+			play(900, 1100, 1700);
+			break;
+		case KEY_3: play(90, 2600, 2600);	// ringback
+			sleep_ms(6);
+			play(900, 700, 1700);
+			break;
+		// With MF "8" (900 Hz + 1500 Hz) wink
+		case KEY_4: play(90, 900, 1500);	// coin collect
+			sleep_ms(60);
+			play(900, 700, 1100);
+			break;
+		case KEY_5: play(90, 900, 1500);	// coin return
+			sleep_ms(60);
+			play(900, 1100, 1700);
+			break;
+		case KEY_6: play(90, 900, 1500);	// ringback
+			sleep_ms(6);
+			play(900, 700, 1700);
+			break;
+		case KEY_SEIZE: play(SEIZE_LENGTH, 2600, 2600);
+			 if (playback_mode == TRUE)
+				sleep_ms(SEIZE_PAUSE);
+			break;
+		}
 	}
 }
+
 
 /*
  * void play(uint32_t duration, uint32_t freq_a, uint32_t freq_b)
