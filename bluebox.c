@@ -256,10 +256,8 @@ void play(uint32_t duration, uint32_t freq_a, uint32_t freq_b)
 
 	tone_a_place = 0;
 	tone_b_place = 0;
-//	TONES_ON();
 	tones_on = TRUE;
 	sleep_ms(duration);
-//	TONES_OFF();
 	tones_on = FALSE;
 }
 
