@@ -264,6 +264,14 @@ void process(uint8_t key)
 		// stuff to set up tone_length and so on.
 	}
 
+	// The 2600 key always plays 2600, so catch it here.
+	if (key == KEY_SEIZE) {
+		play(SEIZE_LENGTH, 2600, 2600);
+		if (playback_mode == TRUE)
+			sleep_ms(SEIZE_PAUSE);
+		return;
+	}
+
 	if (tone_mode == MODE_MF) {
 		switch (key) {
 		case KEY_1: play(tone_length, 700, 900); break;
@@ -278,10 +286,6 @@ void process(uint8_t key)
 		case KEY_STAR: play(KP_LENGTH, 1100, 1700); break;
 		case KEY_0: play(tone_length, 1300, 1500); break;
 		case KEY_HASH: play(tone_length, 1500, 1700); break;
-		case KEY_SEIZE: play(SEIZE_LENGTH, 2600, 2600);
-			 if (playback_mode == TRUE)
-				sleep_ms(SEIZE_PAUSE);
-			break;
 		}
 	} else if (tone_mode == MODE_DTMF) {
 		switch (key) {
@@ -297,10 +301,6 @@ void process(uint8_t key)
 		case KEY_STAR: play(tone_length, 941, 1209); break;
 		case KEY_0: play(tone_length, 941, 1336); break;
 		case KEY_HASH: play(tone_length, 941, 1477); break;
-		case KEY_SEIZE: play(SEIZE_LENGTH, 2600, 2600);
-			 if (playback_mode == TRUE)
-				sleep_ms(SEIZE_PAUSE);
-			break;
 		}
 	} else if (tone_mode == MODE_REDBOX) {
 		switch (key) {
@@ -341,10 +341,6 @@ void process(uint8_t key)
 		case KEY_7: play(200, 1000, 1000);	// UK 10 pence
 			break;
 		case KEY_8: play(350, 1000, 1000);  	// UK 50 pence
-			break;
-		case KEY_SEIZE: play(SEIZE_LENGTH, 2600, 2600);
-			 if (playback_mode == TRUE)
-				sleep_ms(SEIZE_PAUSE);
 			break;
 		}
 	} else if (tone_mode == MODE_GREENBOX) {
@@ -399,10 +395,6 @@ void process(uint8_t key)
 			sleep_ms(60);
 			play(700, 1500, 1700);
 			break;
-		case KEY_SEIZE: play(SEIZE_LENGTH, 2600, 2600);
-			 if (playback_mode == TRUE)
-				sleep_ms(SEIZE_PAUSE);
-			break;
 		}
 	} else if (tone_mode == MODE_PULSE) {
 		switch (key) {
@@ -416,10 +408,6 @@ void process(uint8_t key)
 		case KEY_8: pulse(8); break;
 		case KEY_9: pulse(9); break;
 		case KEY_0: pulse(10); break;
-		case KEY_SEIZE: play(SEIZE_LENGTH, 2600, 2600);
-			 if (playback_mode == TRUE)
-				sleep_ms(SEIZE_PAUSE);
-			break;
 		}
 	}
 } /* void process(uint8_t key) */
