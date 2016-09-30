@@ -5,13 +5,24 @@
  * License:	?
  * Version:	0
  *
+ * Fuse Settings:	L:FF H:DF
+ *
  * This program implements a bluebox with PWM synthesis on an AVR
  * ATtiny85 8-pin microcontroller.  A single pin detects 13 buttons
  * through an ADC using a resistor ladder.  There are 12 memory slots
  * of up to 32 tones each.  Defaults are configurable.
  *
- * This is essentially a translation of Don Froula's PicBasicPro program
- * for implementing a bluebox on a PIC12F683 8-pin microcontroller.
+ * This is a rough translation / reimplementation of Don Froula's
+ * PicBasicPro program for implementing a bluebox on a PIC12F683 8-pin
+ * microcontroller.  See http://projectmf.org/ for more information and
+ * on VOIP servers modified to accept MF tones and how to make your
+ * server do the same.
+ *
+ * For all you naysayers, this program and the hardware on which it runs
+ * are perfectly legal now.  The modern commercial switching offices have
+ * long ago made blueboxing and redboxing impossible on the public phone
+ * networks.  You can still do it on private networks specifically
+ * programmed to allow for this kind of thing.
  *
  * Resistor network detection values assume a network of fourteen 1K ohm
  * resistors in series, from Vdd to Vss, with a tap between each
@@ -172,19 +183,17 @@ int main(void)
 			tone_mode = MODE_REDBOX;
 		else
 			tone_mode = MODE_MF;
-		play(1000, 1700, 1700);
 	}
 
 	// Toggle power-up tone mode and store in EE if '*' held at power-up
 	if (key == KEY_STAR) {
-		play(1000, 1700, 1700);
 	}
 
 	// Toggle power-up tone length and store in EE if '#' held at power-up
 	if (key == KEY_HASH) {
-		play(1000, 1700, 1700);
 	}
 
+	if (key > 0) play(1000, 1700, 1700);
 	while (key == getkey());	// Wait for key to be released
 
 	// Normal operation happens here
