@@ -76,6 +76,7 @@ const unsigned char sine_table[] PROGMEM = {
 
 #define MODE_MF		0x01
 #define MODE_DTMF	0x02
+#define MODE_REDBOX	0x03
 
 #define SEIZE_LENGTH	1000
 #define SEIZE_PAUSE	1500
@@ -154,7 +155,7 @@ int main(void)
 
 	if (key == 13) {
 		if (tone_mode == MODE_MF)
-			tone_mode = MODE_DTMF;
+			tone_mode = MODE_REDBOX;
 		else
 			tone_mode = MODE_MF;
 		play(1000, 1700, 1700);
@@ -172,6 +173,7 @@ int main(void)
 
 	while (key == getkey());	// Wait for key to be released
 
+	// Normal operation happens here
 	while (1) {
 		key = getkey();
 		process(key);
@@ -236,6 +238,24 @@ void process(uint8_t key)
 			 if (playback_mode == TRUE)
 				sleep_ms(SEIZE_PAUSE);
 			break;
+		}
+	} else if (tone_mode == MODE_REDBOX) {
+		switch (key) {
+		case 1: play(66, 1700, 2200); break;
+		case 2: play(66, 1700, 2200);
+			sleep_ms(66);
+			play(66, 1700, 2200);
+			break;
+
+		case 3: play(33, 1700, 2200);
+			sleep_ms(33);
+			play(33, 1700, 2200);
+			sleep_ms(33);
+			play(33, 1700, 2200);
+			sleep_ms(33);
+			play(33, 1700, 2200);
+			sleep_ms(33);
+			play(33, 1700, 2200);
 		}
 	}
 }
