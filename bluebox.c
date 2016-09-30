@@ -428,6 +428,10 @@ void process(uint8_t key)
  * pull-down resistor, with some margin for noise.  This means that no
  * key has been pressed.
  *
+ * Further reading:
+ *    https://learn.sparkfun.com/tutorials/voltage-dividers
+ *    http://www.marcelpost.com/wiki/index.php/ATtiny85_ADC
+ *
  */
 uint8_t getkey(void)
 {
@@ -501,6 +505,8 @@ void init_ports(void)
  * chapter 17.13.2 "ADCSRA – ADC Control and Status Register A"
  * (pages 140 and 141 on the complete ATtiny25/45/85 datasheet,
  * Rev. 2586M–AVR–07/10)
+ *
+ * http://www.atmel.com/images/atmel-2586-avr-8-bit-microcontroller-attiny25-attiny45-attiny85_datasheet.pdf
  *
  */
 void init_adc()
@@ -585,6 +591,9 @@ void pulse(uint8_t count)
  * convenient for monitoring buttons and doing debouncing.  More on that
  * later.
  *
+ * Further reading:
+ *    http://repos.borg.ch/projects/avr_leds/trunk/ws2811/avr/big-led-string.c
+ *
  */
 void sleep_ms(uint16_t milliseconds)
 {
@@ -600,6 +609,18 @@ void sleep_ms(uint16_t milliseconds)
 void tick(void) {}
 
 
+/*
+ * ISR(TIM0_OVF_vect)
+ *
+ * Here we set up a timer to present sine data to an oscillator.
+ * This produces a pulse-width-modulated wave that creates an
+ * approximation of a sine wave.  This is smoothed out with a low-pass
+ * filter after the signal exits the microcontroller.
+ *
+ * Further reading:
+ *    https://en.wikipedia.org/wiki/Pulse-width_modulation
+ *    https://learn.sparkfun.com/tutorials/pulse-width-modulation
+ */
 ISR(TIM0_OVF_vect)
 {
 	if (tones_on) {
