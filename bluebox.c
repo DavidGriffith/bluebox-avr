@@ -12,7 +12,7 @@
  * through an ADC using a resistor ladder.  There are 12 memory slots
  * of up to 32 tones each.  Defaults are configurable.
  *
- * This is a rough translation / reimplementation of Don Froula's
+ * This is a rough translation / reimplementation / expansion of Don Froula's
  * PicBasicPro program for implementing a bluebox on a PIC12F683 8-pin
  * microcontroller.  See http://projectmf.org/ for more information and
  * on VOIP servers modified to accept MF tones and how to make your
