@@ -366,8 +366,8 @@ void process(uint8_t key)
 			sleep_ms(60);
 			play(700, 900, 1500);
 			break;
-		case KEY_6: play(90, 2600, 2600);	// Operator release and Coin Collect
-			sleep_ms(60);
+		case KEY_6: play(90, 2600, 2600);	// Operator release
+			sleep_ms(60);			// and coin collect
 			play(700, 1500, 1700);
 			break;
 		// With MF "8" (900 Hz + 1500 Hz) wink
@@ -391,8 +391,8 @@ void process(uint8_t key)
 			sleep_ms(60);
 			play(700, 900, 1500);
 			break;
-		case KEY_HASH: play(90, 900, 1500);	// Operator release and Coin Collect
-			sleep_ms(60);
+		case KEY_HASH: play(90, 900, 1500);	// Operator release
+			sleep_ms(60);			// and coin collect
 			play(700, 1500, 1700);
 			break;
 		}
