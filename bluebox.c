@@ -170,17 +170,10 @@ int main(void)
 		play(1000, 1700, 1700);
 	}
 
-//	while (getkey() >= 1);	// wait until keys are released
-
-
-
 	while (1) {
-
-//		while (0 == (key = getkey()));
-
 		key = getkey();
 		process(key);
-
+		while (key == getkey());	// Wait for key to be released
 	}
 	return 0;
 
