@@ -273,9 +273,27 @@ void process(uint8_t key)
 			sleep_ms(33);
 			play(33, 1700, 2200);
 			break;
-		case KEY_4: play(200, 1000, 1000);	// 10 pence
+		case KEY_4: play(60, 2200, 2200);	// Canada nickel
 			break;
-		case KEY_5: play(350, 1000, 1000);  	// 50 pence
+		case KEY_5: play(60, 2200, 2200);	// Canada dime
+			sleep_ms(60);
+			play(60, 2200, 2200);
+			sleep_ms(60);
+			break;
+		case KEY_6: play(33, 2200, 2200);	// Canada quarter
+			sleep_ms(33);
+			play(33, 2200, 2200);
+			sleep_ms(33);
+			play(33, 2200, 2200);
+			sleep_ms(33);
+			play(33, 2200, 2200);
+			sleep_ms(33);
+			play(33, 2200, 2200);
+			sleep_ms(33);
+			break;
+		case KEY_7: play(200, 1000, 1000);	// UK 10 pence
+			break;
+		case KEY_8: play(350, 1000, 1000);  	// UK 50 pence
 			break;
 		case KEY_SEIZE: play(SEIZE_LENGTH, 2600, 2600);
 			 if (playback_mode == TRUE)
