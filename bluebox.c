@@ -7,10 +7,10 @@
  *
  * Fuse Settings:	L:FF H:DF
  *
- * This program implements a bluebox with PWM synthesis on an AVR
- * ATtiny85 8-pin microcontroller.  A single pin detects 13 buttons
- * through an ADC using a resistor ladder.  There are 12 memory slots
- * of up to 32 tones each.  Defaults are configurable.
+ * This program implements a bluebox, redbox, and greenbox with PWM
+ * synthesis on an AVR ATtiny85 8-pin microcontroller.  A single pin
+ * detects 13 buttons through an ADC using a resistor ladder.  There are
+ * 12 memory slots of up to 32 tones each.  Defaults are configurable.
  *
  * This is a rough translation / reimplementation / expansion of Don Froula's
  * PicBasicPro program for implementing a bluebox on a PIC12F683 8-pin
@@ -29,6 +29,9 @@
  * resistors in series, from Vdd to Vss, with a tap between each
  * resistor pair.  Taps at Vdd and Vss are not used, to avoid ADC issues
  * when trying to read at the voltage rails.
+ *
+ * Many thanks go to the denizens of #AVR on irc.freenode.net for
+ * answering my questions on sine wave generation.
  *
  */
 
@@ -507,6 +510,9 @@ void init_ports(void)
  * Rev. 2586M–AVR–07/10)
  *
  * http://www.atmel.com/images/atmel-2586-avr-8-bit-microcontroller-attiny25-attiny45-attiny85_datasheet.pdf
+ *
+ * Further reading:
+ *    http://www.marcelpost.com/wiki/index.php/ATtiny85_ADC
  *
  */
 void init_adc()
