@@ -27,6 +27,7 @@ There are currently five tone modes:
 2. DTMF:  Standard DTMF dialing tones
 
 3. Redbox:
+
 	|              |             |               |
 	|--------------|-------------|---------------|
 	| US Nickel    | US dime     | US quarter    |
@@ -36,7 +37,7 @@ There are currently five tone modes:
 
 4. Greenbox (the first two rows have a 2600hz wink.  
    The next two rows have a 900hz + 1500hz wink:
-	| | | |
+	|                  |                   |                             |
 	|------------------|-------------------|-----------------------------|
 	| Coin collect     | Coin return       | Ringback                    |
 	| Operator attach  | Operator release  | Op release and coin collect |
