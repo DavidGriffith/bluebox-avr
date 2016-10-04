@@ -21,8 +21,11 @@ Operation
 ---------
 
 There are currently five tone modes:
+
 1. MF:  These emit MF tones 0 through 9 with KP and ST -- a standard bluebox.
+
 2. DTMF:  Standard DTMF dialing tones
+
 3. Redbox:
 	|              |             |               |
 	|--------------|-------------|---------------|
