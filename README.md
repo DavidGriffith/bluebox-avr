@@ -2,10 +2,10 @@
 ===============
 
 ***Bluebox AVR*** implements a bluebox (see 
-https://en.wikipedia.org/wiki/Blue_box) on AVR microcontrollers.  This 
-project is roughly a translation of the PIC-based bluebox at 
-http://projectmf.org/bluebox.html.  Schematics and board layouts will 
-soon be available in different repositories.
+https://en.wikipedia.org/wiki/Blue_box) on AVR microcontrollers 
+(currently only the ATtiny85).  This project is roughly a 
+reimplementation of the PIC-based bluebox at 
+http://projectmf.org/bluebox.html.
 
 
 Description
