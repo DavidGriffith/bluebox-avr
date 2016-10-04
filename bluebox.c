@@ -427,7 +427,7 @@ void process(uint8_t key)
  * check to see what range that value falls into and thus we know which
  * button was pressed.
  *
- * Any ADC value less than 9 is essentially 0 VDC because of the
+ * Any ADC value less than 13 is essentially 0 VDC because of the
  * pull-down resistor, with some margin for noise.  This means that no
  * key has been pressed.
  *
@@ -447,7 +447,7 @@ uint8_t getkey(void)
 		ADCSRA |= (1 << ADSC);		// start ADC measurement
 		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
 		if (voltage != ADCH) continue;	// bouncy result, try again
-		if (voltage <  9) return 0;	// no key has been pressed
+		if (voltage <  13) return 0;	// no key has been pressed
 
 		// If we made it this far, then we've got something valid
 		// These values calculated with Vdd = 5 volts DC
@@ -477,7 +477,7 @@ uint8_t getkey(void)
 		// 0.71 volts.  ADC value = 37
 		if (ADCH > 27  && ADCH <=  45) return KEY_HASH;
 		// 0.357 volts.  ADC value = 18
-		if (ADCH > 9   && ADCH <=  26) return KEY_SEIZE;
+		if (ADCH > 13   && ADCH <=  26) return KEY_SEIZE;
 		// We shouldn't get past here,
 		// but if we do, treat it like no key detected.
 		break;
