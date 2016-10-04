@@ -48,6 +48,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>	/* for sei() */
 #include <avr/pgmspace.h>
+#include <avr/eeprom.h>
 
 /*
  * Sine samples 7-bit resolution, range 0-126, 256 samples
@@ -95,11 +96,11 @@ const unsigned char sine_table[] PROGMEM = {
 
 #define DEBOUNCE_TIME	25
 
-#define MODE_MF		0x01
-#define MODE_DTMF	0x02
-#define MODE_REDBOX	0x03
-#define MODE_GREENBOX	0x04
-#define MODE_PULSE	0x05
+#define MODE_MF		0x00
+#define MODE_DTMF	0x01
+#define MODE_REDBOX	0x02
+#define MODE_GREENBOX	0x03
+#define MODE_PULSE	0x04
 
 #define SEIZE_LENGTH	1000
 #define SEIZE_PAUSE	1500
@@ -135,6 +136,7 @@ do { \
 #define TONE_LENGTH_SLOW	120
 
 #ifdef KEYPAD_16
+#define KEY_NOTHING	0
 #define KEY_1		1
 #define KEY_2		2
 #define KEY_3		3
@@ -152,6 +154,7 @@ do { \
 #define KEY_HASH	15
 #define KEY_D		16
 #else
+#define KEY_NOTHING	0
 #define KEY_1		1
 #define KEY_2		2
 #define KEY_3		3
@@ -167,10 +170,12 @@ do { \
 #define KEY_SEIZE	13
 #endif
 
+#define EEPROM_STARTUP_MODE		MODE_MF
+
 typedef uint8_t bool;
 
 uint8_t tone_mode = MODE_MF;
-uint8_t tone_length = TONE_LENGTH_FAST;
+uint8_t volatile tone_length = TONE_LENGTH_FAST;
 bool  playback_mode = FALSE;
 bool  tones_on = FALSE;
 
@@ -189,23 +194,37 @@ void  tick(void);
 
 static uint8_t millisec_counter = OVERFLOW_PER_MILLISEC;
 static volatile uint8_t millisec_flag;
+uint8_t EEMEM eeprom_init = 0;
 
 int main(void)
 {
 	uint8_t key;
+	bool	startup_set = FALSE;
 
-//	init_settings();
 	init_ports();
 	init_adc();
 
 	millisec_flag = 0;
 
+	// Read setup byte
+	tone_mode = eeprom_read_byte(EEPROM_STARTUP_MODE);
+	if ((tone_mode & 0x0F) > MODE_PULSE)	// Check for bogus settings
+		tone_mode = MODE_MF;		// Set MODE_MF if bogus
 
 	// Start TIMER0
 	TCCR0A = ((1<<COM0A1)|(1<<WGM01)|(1<<WGM00));
 	TCCR0B = (TIMER0_PRESCALE_1);
 
-	key = getkey();
+	key = getkey();		// What key is held on startup?
+
+	if (key == KEY_SEIZE) {	// We're setting a default mode
+		startup_set = TRUE;
+		play(1000, 1700, 1700);
+		while (key == getkey());	// Wait for release
+		do {				// Get the next keystroke
+			key = getkey();
+		} while (key == KEY_NOTHING);
+	}
 
 	switch (key) {
 	case KEY_1:	tone_mode = MODE_MF; break;
@@ -213,13 +232,16 @@ int main(void)
 	case KEY_3:	tone_mode = MODE_REDBOX; break;
 	case KEY_4:	tone_mode = MODE_GREENBOX; break;
 	case KEY_5:	tone_mode = MODE_PULSE; break;
-	// Toggle power-up tone mode and store in EE if '*' held at power-up
-	case KEY_STAR:	break;
-	// Toggle power-up tone length and store in EE if '#' held at power-up
-	case KEY_HASH:	break;
 	}
 
-	if (key > 0) play(1000, 1700, 1700);
+	if (startup_set) {
+		play(75, 1700, 1700);
+		eeprom_update_byte(EEPROM_STARTUP_MODE, tone_mode);
+		play(1000, 1500, 1500);
+	} else {
+		if (key > KEY_NOTHING) play(1000, 1700, 1700);
+	}
+
 	while (key == getkey());	// Wait for key to be released
 
 	// Normal operation happens here
