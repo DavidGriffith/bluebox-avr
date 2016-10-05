@@ -106,7 +106,6 @@ const unsigned char sine_table[] PROGMEM = {
 #define SEIZE_PAUSE	1500
 #define KP_LENGTH	120
 
-
 #define SINE_SAMPLES	255UL
 #define TICKS_PER_CYCLE	256UL
 #define SINE_MIDPOINT	0x7F	// After decoupling, this is 0V of the sine
@@ -212,6 +211,8 @@ int main(void)
 		tone_mode = MODE_MF;		// Set MODE_MF if bogus
 
 	// Start TIMER0
+	// The timer is counting from 0 to 255 -- 256 values.
+	// The prescaler is 1.  Therefore our PWM frequency is F_CPU / 256.
 	TCCR0A = ((1<<COM0A1)|(1<<WGM01)|(1<<WGM00));
 	TCCR0B = (TIMER0_PRESCALE_1);
 
