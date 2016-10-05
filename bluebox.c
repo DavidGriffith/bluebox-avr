@@ -53,7 +53,7 @@
 /*
  * Sine samples 7-bit resolution, range 0-126, 256 samples
  *
- * http://www.daycounter.com/Calculators/Sine-Generator-Calculator2.phtml
+ * http://www.daycounter.com/Calculators/Sine-Generator-Calculator.phtml
  *
  */
 const unsigned char sine_table[] PROGMEM = {
