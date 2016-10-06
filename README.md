@@ -36,7 +36,7 @@ There are currently five tone modes:
 	|     .        |      .      |      .        |
 
 4. Greenbox (the first two rows have a 2600hz wink.  
-   The next two rows have a 900hz + 1500hz wink:
+   The next two rows have a 900hz + 1500hz wink):
 
 	|                  |                   |                             |
 	|------------------|-------------------|-----------------------------|
