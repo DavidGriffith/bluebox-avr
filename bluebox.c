@@ -569,6 +569,10 @@ void init_adc()
  *
  * Plays a pair of tones (in Hz) for the duration (in ms) specified.
  *
+ * There are two ways to play a single tone:
+ *   1) make freq_a and freq_b the same
+ *   2) make freq_b zero
+ *
  */
 void play(uint32_t duration, uint32_t freq_a, uint32_t freq_b)
 {
@@ -577,7 +581,10 @@ void play(uint32_t duration, uint32_t freq_a, uint32_t freq_b)
 
 	tmp_a *= freq_a;
 	tone_a_step = tmp_a / 256;
-	tmp_b *= freq_b;
+	if (freq_b == 0)
+		tmp_b *= freq_a;
+	else
+		tmp_b *= freq_b;
 	tone_b_step = tmp_b / 256;
 
 	tone_a_place = 0;
