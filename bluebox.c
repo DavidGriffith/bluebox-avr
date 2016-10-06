@@ -465,7 +465,7 @@ uint8_t getkey(void)
 	while (1) {
 		ADCSRA |= (1 << ADSC);		// start ADC measurement
 		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
-		sleep_ms(DEBOUNCE_TIME/3);	// delay for debounce
+		sleep_ms(DEBOUNCE_TIME);	// delay for debounce
 		voltage = ADCH;
 		ADCSRA |= (1 << ADSC);		// start ADC measurement
 		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
