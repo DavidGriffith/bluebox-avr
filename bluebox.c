@@ -658,6 +658,7 @@ void tick(void) {}
  * Further reading:
  *    https://en.wikipedia.org/wiki/Pulse-width_modulation
  *    https://learn.sparkfun.com/tutorials/pulse-width-modulation
+ *
  */
 ISR(TIM0_OVF_vect)
 {
