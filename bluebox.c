@@ -169,12 +169,13 @@ do { \
 #define KEY_SEIZE	13
 #endif
 
-#define EEPROM_STARTUP_MODE		MODE_MF
+#define EEPROM_STARTUP_TONE_MODE		0x00
+#define EEPROM_STARTUP_TONE_LENGTH		0x01
 
 typedef uint8_t bool;
 
-uint8_t tone_mode = MODE_MF;
-uint8_t volatile tone_length = TONE_LENGTH_FAST;
+uint8_t tone_mode;
+uint8_t tone_length;
 bool  playback_mode = FALSE;
 bool  tones_on = FALSE;
 
@@ -205,10 +206,14 @@ int main(void)
 
 	millisec_flag = 0;
 
-	// Read setup byte
-	tone_mode = eeprom_read_byte(EEPROM_STARTUP_MODE);
-	if ((tone_mode & 0x0F) > MODE_PULSE)	// Check for bogus settings
+	// Read setup bytes
+	tone_mode = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE);
+	if (tone_mode < MODE_MF || tone_mode < MODE_PULSE)	// Check for bogus settings
 		tone_mode = MODE_MF;		// Set MODE_MF if bogus
+
+	tone_length = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_LENGTH);
+	if (tone_length < TONE_LENGTH_FAST || tone_length > TONE_LENGTH_SLOW)
+		tone_length = TONE_LENGTH_FAST;
 
 	// Start TIMER0
 	// The timer is counting from 0 to 255 -- 256 values.
@@ -233,11 +238,19 @@ int main(void)
 	case KEY_3:	tone_mode = MODE_REDBOX; break;
 	case KEY_4:	tone_mode = MODE_GREENBOX; break;
 	case KEY_5:	tone_mode = MODE_PULSE; break;
+	case KEY_HASH:	if (tone_length == TONE_LENGTH_FAST)
+				tone_length = TONE_LENGTH_SLOW;
+			else
+				tone_length = TONE_LENGTH_FAST;
+			break;
+	default:	play(1000, 440, 440);
+			break;
 	}
 
 	if (startup_set) {
 		play(75, 1700, 1700);
-		eeprom_update_byte(EEPROM_STARTUP_MODE, tone_mode);
+		eeprom_update_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE, tone_mode);
+		eeprom_update_byte(( uint8_t *)EEPROM_STARTUP_TONE_LENGTH, tone_length);
 		play(1000, 1500, 1500);
 	} else {
 		if (key > KEY_NOTHING) play(1000, 1700, 1700);
@@ -450,9 +463,9 @@ void process(uint8_t key)
  * check to see what range that value falls into and thus we know which
  * button was pressed.
  *
- * Any ADC value less than 13 is essentially 0 VDC because of the
- * pull-down resistor, with some margin for noise.  This means that no
- * key has been pressed.
+ * Any ADC value less than 13 (used to be 9) is essentially 0 VDC
+ * because of the pull-down resistor, with some margin for noise.  This
+ * means that no key has been pressed.
  *
  * Further reading:
  *    https://learn.sparkfun.com/tutorials/voltage-dividers
@@ -500,7 +513,7 @@ uint8_t getkey(void)
 		// 0.71 volts.  ADC value = 37
 		if (ADCH > 27  && ADCH <=  45) return KEY_HASH;
 		// 0.357 volts.  ADC value = 18
-		if (ADCH > 13   && ADCH <=  26) return KEY_SEIZE;
+		if (ADCH > 16   && ADCH <=  26) return KEY_SEIZE;
 		// We shouldn't get past here,
 		// but if we do, treat it like no key detected.
 		break;
