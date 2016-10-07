@@ -96,6 +96,15 @@ const unsigned char sine_table[] PROGMEM = {
 
 #define DEBOUNCE_TIME	25
 
+/*
+ * The tone mode is stored as the first byte of a memory chunk.
+ * When eeprom is initialized as the AVR is programmed, the
+ * default state of each memory address is 0xFF.  Therefore, when
+ * we find a chunk beginning with 0xFF, we conclude that the
+ * memory location is empty.
+ *
+ */
+#define MODE_EMPTY	0xFF
 #define MODE_MF		0x00
 #define MODE_DTMF	0x01
 #define MODE_REDBOX	0x02
@@ -169,8 +178,22 @@ do { \
 #define KEY_SEIZE	13
 #endif
 
+/* two bytes, then 12 chunks of 41 bytes each */
+#define EEPROM_CHUNK_SIZE			0x29
 #define EEPROM_STARTUP_TONE_MODE		0x01
 #define EEPROM_STARTUP_TONE_LENGTH		0x02
+#define EEPROM_MEM1				0x03
+#define EEPROM_MEM2				EPROM_MEM1 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM3				EPROM_MEM2 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM4				EPROM_MEM3 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM5				EPROM_MEM4 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM6				EPROM_MEM5 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM7				EPROM_MEM6 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM8				EPROM_MEM7 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM9				EPROM_MEM8 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM10				EPROM_MEM9 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM11				EPROM_MEM10 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM12				EPROM_MEM11 + EEPROM_CHUNK_SIZE
 
 typedef uint8_t bool;
 
