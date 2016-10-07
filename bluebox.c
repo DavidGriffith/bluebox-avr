@@ -194,7 +194,8 @@ void  tick(void);
 
 static uint8_t millisec_counter = OVERFLOW_PER_MILLISEC;
 static volatile uint8_t millisec_flag;
-uint8_t EEMEM eeprom_init = 0;
+
+uint8_t ee_data[] EEMEM = {0,0,0};
 
 int main(void)
 {
@@ -214,6 +215,22 @@ int main(void)
 
 	// Read setup bytes
 	tone_mode = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE);
+
+	if (tone_mode == 0xff) {
+		play(75,1000,1000);
+		sleep_ms(66);
+		play(75,1000,1000);
+		sleep_ms(66);
+		play(75,1000,1000);
+		sleep_ms(66);
+		play(75,1000,1000);
+		sleep_ms(66);
+		play(75,1000,1000);
+		sleep_ms(66);
+		play(75,1000,1000);
+		sleep_ms(1000);
+	}
+
 	if (tone_mode < MODE_MF || tone_mode > MODE_PULSE) {
 		tone_mode = MODE_MF;		// Set MODE_MF if bogus
 		play(75,880,880);
