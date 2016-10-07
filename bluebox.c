@@ -169,8 +169,8 @@ do { \
 #define KEY_SEIZE	13
 #endif
 
-#define EEPROM_STARTUP_TONE_MODE		0x00
-#define EEPROM_STARTUP_TONE_LENGTH		0x01
+#define EEPROM_STARTUP_TONE_MODE		0x01
+#define EEPROM_STARTUP_TONE_LENGTH		0x02
 
 typedef uint8_t bool;
 
