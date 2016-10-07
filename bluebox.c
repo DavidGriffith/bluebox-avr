@@ -206,20 +206,27 @@ int main(void)
 
 	millisec_flag = 0;
 
-	// Read setup bytes
-	tone_mode = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE);
-	if (tone_mode < MODE_MF || tone_mode > MODE_PULSE)
-		tone_mode = MODE_MF;		// Set MODE_MF if bogus
-
-	tone_length = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_LENGTH);
-	if (tone_length < TONE_LENGTH_FAST || tone_length > TONE_LENGTH_SLOW)
-		tone_length = TONE_LENGTH_FAST;
-
 	// Start TIMER0
 	// The timer is counting from 0 to 255 -- 256 values.
 	// The prescaler is 1.  Therefore our PWM frequency is F_CPU / 256.
 	TCCR0A = ((1<<COM0A1)|(1<<WGM01)|(1<<WGM00));
 	TCCR0B = (TIMER0_PRESCALE_1);
+
+	// Read setup bytes
+	tone_mode = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE);
+	if (tone_mode < MODE_MF || tone_mode > MODE_PULSE) {
+		tone_mode = MODE_MF;		// Set MODE_MF if bogus
+		play(75,880,880);
+		sleep_ms(66);
+		play(75,880,880);
+		sleep_ms(66);
+		play(75,880,880);
+		sleep_ms(66);
+	}
+
+	tone_length = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_LENGTH);
+	if (tone_length < TONE_LENGTH_FAST || tone_length > TONE_LENGTH_SLOW)
+		tone_length = TONE_LENGTH_FAST;
 
 	key = getkey();		// What key is held on startup?
 
@@ -251,6 +258,7 @@ int main(void)
 		play(75, 1700, 1700);
 		eeprom_update_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE, tone_mode);
 		eeprom_update_byte(( uint8_t *)EEPROM_STARTUP_TONE_LENGTH, tone_length);
+		eeprom_busy_wait();
 		play(1000, 1500, 1500);
 	} else {
 		if (key > KEY_NOTHING) play(1000, 1700, 1700);
