@@ -107,13 +107,14 @@ help:
 	@echo "This Makefile has no default rule. Use one of the following:"
 	@echo "make hex ....... to build $(PROJECT).hex"
 	@echo "make program ... to flash fuses and firmware"
+	@echo "make eeprom ....  to extract EEPROM data from .elf file and program the device with it."
 	@echo "make fuse ...... to flash the fuses"
 	@echo "make flash ..... to flash the firmware (use this on metaboard)"
 	@echo "make clean ..... to delete objects and hex file"
 
 hex: $(PROJECT).hex
 
-program: flash fuse
+program: flash fuse eeprom
 
 # rule for programming fuse bits:
 fuse:
@@ -124,6 +125,11 @@ fuse:
 # rule for uploading firmware:
 flash: $(PROJECT).hex
 	$(AVRDUDE) -U flash:w:$(PROJECT).hex:i
+
+# rule for uploading eeprom:
+eeprom: flash
+	$(AVRDUDE) -U eeprom:w:$(PROJECT).eep.hex:i
+
 
 # rule for deleting dependent files (those which can be built by Make):
 clean:
@@ -154,6 +160,7 @@ $(PROJECT).elf: $(OBJECTS)
 $(PROJECT).hex: $(PROJECT).elf
 	rm -f $(PROJECT).hex $(PROJECT).eep.hex
 	avr-objcopy -j .text -j .data -O ihex $(PROJECT).elf $(PROJECT).hex
+	avr-objcopy -j .eeprom --set-section-flags=.eeprom="alloc,load" --change-section-lma .eeprom=0 -O ihex $(PROJECT).elf  $(PROJECT).eep.hex
 	avr-size $(PROJECT).hex
 
 # debugging targets:
