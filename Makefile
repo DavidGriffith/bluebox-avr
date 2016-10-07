@@ -160,7 +160,10 @@ $(PROJECT).elf: $(OBJECTS)
 $(PROJECT).hex: $(PROJECT).elf
 	rm -f $(PROJECT).hex $(PROJECT).eep.hex
 	avr-objcopy -j .text -j .data -O ihex $(PROJECT).elf $(PROJECT).hex
-	avr-objcopy -j .eeprom --set-section-flags=.eeprom="alloc,load" --change-section-lma .eeprom=0 -O ihex $(PROJECT).elf  $(PROJECT).eep.hex
+	avr-objcopy -j .eeprom \
+		--set-section-flags=.eeprom="alloc,load" \
+		--change-section-lma .eeprom=0 \
+		-O ihex $(PROJECT).elf $(PROJECT).eep.hex
 	avr-size $(PROJECT).hex
 
 # debugging targets:
