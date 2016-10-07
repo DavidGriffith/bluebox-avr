@@ -208,7 +208,7 @@ int main(void)
 
 	// Read setup bytes
 	tone_mode = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE);
-	if (tone_mode < MODE_MF || tone_mode < MODE_PULSE)	// Check for bogus settings
+	if (tone_mode < MODE_MF || tone_mode > MODE_PULSE)
 		tone_mode = MODE_MF;		// Set MODE_MF if bogus
 
 	tone_length = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_LENGTH);
