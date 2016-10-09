@@ -218,7 +218,7 @@ void  tick(void);
 static uint8_t millisec_counter = OVERFLOW_PER_MILLISEC;
 static volatile uint8_t millisec_flag;
 
-uint8_t ee_data[] EEMEM = {0,0,0};
+uint8_t ee_data[] EEMEM = {0,0,75};
 
 int main(void)
 {
