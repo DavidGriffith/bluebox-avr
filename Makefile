@@ -134,7 +134,8 @@ eeprom: flash
 # rule for deleting dependent files (those which can be built by Make):
 clean:
 	rm -f $(PROJECT).hex $(PROJECT).lst $(PROJECT).obj $(PROJECT).cof \
-		$(PROJECT).list $(PROJECT).map $(PROJECT).eep.hex $(PROJECT).elf *.o
+		$(PROJECT).list $(PROJECT).map $(PROJECT).eep.hex \
+		$(PROJECT).elf *.bin *.o
 
 # Generic rule for compiling C files:
 .c.o:
