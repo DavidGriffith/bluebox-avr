@@ -178,6 +178,9 @@ do { \
 #define KEY_SEIZE	13
 #endif
 
+/* Number of milliseconds to make for a long press */
+#define LONGPRESS_TIME	2000
+
 /* two bytes, then 12 chunks of 41 bytes each */
 #define EEPROM_CHUNK_SIZE			0x29
 #define EEPROM_STARTUP_TONE_MODE		0x01
@@ -212,11 +215,17 @@ uint8_t getkey(void);
 void  process(uint8_t);
 void  play(uint32_t, uint32_t, uint32_t);
 void  pulse(uint8_t);
+
 void  sleep_ms(uint16_t ms);
 void  tick(void);
-
 static uint8_t millisec_counter = OVERFLOW_PER_MILLISEC;
 static volatile uint8_t millisec_flag;
+
+void longpress_start(void);
+void longpress_stop(void);
+static uint16_t	longpress_counter;
+static uint8_t	longpress_on = FALSE;
+static volatile uint8_t longpress_flag = FALSE;
 
 uint8_t ee_data[] EEMEM = {0,0,75};
 
@@ -310,7 +319,21 @@ int main(void)
 	while (1) {
 		key = getkey();
 		process(key);
-		while (key == getkey());	// Wait for key to be released
+
+		// Wait for release or long-press
+		longpress_start();
+		while (key == getkey() && key != KEY_NOTHING) {
+			if (longpress_flag) {
+				play(75, 1700, 1700);
+
+				// do long-press stuff here
+
+				play(1000, 1500, 1500);
+				while (key == getkey());
+				break;
+			}
+		}
+		longpress_stop();
 	}
 	return 0;
 
@@ -498,6 +521,19 @@ void process(uint8_t key)
 		}
 	}
 } /* void process(uint8_t key) */
+
+
+void longpress_start(void)
+{
+	longpress_counter = LONGPRESS_TIME;
+	longpress_on = TRUE;
+}
+
+
+void longpress_stop(void)
+{
+	longpress_on = FALSE;
+}
 
 
 /*
@@ -739,5 +775,18 @@ ISR(TIM0_OVF_vect)
 	if(millisec_counter == 0) {
 		millisec_counter = OVERFLOW_PER_MILLISEC;
 		millisec_flag = 1;
+
+		// This is a secondary millisecond counter that is turned
+		// on only when we're waiting for a key to be pressed
+		// and held.  If it times out, then we set a flag to let
+		// the main loop know that a long press has occurred.
+		if (longpress_on) {
+			longpress_counter--;
+			longpress_flag = 0;
+			if (longpress_counter == 0) {
+				longpress_counter = LONGPRESS_TIME;
+				longpress_flag = 1;
+			}
+		}
 	}
 }
