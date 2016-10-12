@@ -219,7 +219,7 @@ void  pulse(uint8_t);
 void  sleep_ms(uint16_t ms);
 void  tick(void);
 static uint8_t millisec_counter = OVERFLOW_PER_MILLISEC;
-static volatile uint8_t millisec_flag;
+static volatile uint8_t millisec_flag = FALSE;
 
 void longpress_start(void);
 void longpress_stop(void);
@@ -236,8 +236,6 @@ int main(void)
 
 	init_ports();
 	init_adc();
-
-	millisec_flag = 0;
 
 	// Start TIMER0
 	// The timer is counting from 0 to 255 -- 256 values.
@@ -735,7 +733,7 @@ void sleep_ms(uint16_t milliseconds)
 {
 	while( milliseconds > 0 ) {
 		if( millisec_flag ) {
-			millisec_flag = 0;
+			millisec_flag = FALSE;
 			milliseconds--;
 			tick();
 		}
@@ -777,7 +775,7 @@ ISR(TIM0_OVF_vect)
 	millisec_counter--;
 	if(millisec_counter == 0) {
 		millisec_counter = OVERFLOW_PER_MILLISEC;
-		millisec_flag = 1;
+		millisec_flag = TRUE;
 
 		// This is a secondary millisecond counter that is turned
 		// on only when we're waiting for a key to be pressed
