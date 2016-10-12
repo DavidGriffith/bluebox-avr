@@ -317,7 +317,10 @@ int main(void)
 
 	// Normal operation happens here
 	while (1) {
-		key = getkey();
+
+		do { key = getkey(); }
+		while (key == KEY_NOTHING);
+
 		process(key);
 
 		// Wait for release or long-press
