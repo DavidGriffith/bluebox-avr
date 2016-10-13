@@ -115,6 +115,7 @@ const unsigned char sine_table[] PROGMEM = {
 #define MODE_GREENBOX	0x03
 #define MODE_PULSE	0x04
 #define MODE_MAX	MODE_PULSE
+#define MODE_MIN	MODE_MF
 
 #define SEIZE_LENGTH	1000
 #define SEIZE_PAUSE	1500
@@ -262,7 +263,7 @@ static volatile uint8_t longpress_flag = FALSE;
 void eeprom_store(uint8_t);
 void eeprom_playback(uint8_t);
 
-uint8_t ee_data[] EEMEM = {0,0,75,0,13,10,1,3,1,12};
+uint8_t ee_data[] EEMEM = {0,99,75,0,13,10,1,3,1,12};
 
 int main(void)
 {
@@ -280,29 +281,15 @@ int main(void)
 	// Read setup bytes
 	tone_mode = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE);
 
-	if (tone_mode == 0xff) {
-		play(75,1000,1000);
-		sleep_ms(66);
-		play(75,1000,1000);
-		sleep_ms(66);
-		play(75,1000,1000);
-		sleep_ms(66);
-		play(75,1000,1000);
-		sleep_ms(66);
-		play(75,1000,1000);
-		sleep_ms(66);
-		play(75,1000,1000);
-		sleep_ms(1000);
-	}
+	// If our startup mode is bogus, set something sensible
+	// and make noise to let the user know something's wrong.
+	if (tone_mode < MODE_MIN || tone_mode > MODE_MAX) {
+		tone_mode = MODE_MIN;
 
-	if (tone_mode < MODE_MF || tone_mode > MODE_PULSE) {
-		tone_mode = MODE_MF;		// Set MODE_MF if bogus
-		play(75,880,880);
-		sleep_ms(66);
-		play(75,880,880);
-		sleep_ms(66);
-		play(75,880,880);
-		sleep_ms(66);
+		for (key = 0; key < 4; key++) {
+			play(75,880,880);
+			sleep_ms(66);
+		}
 	}
 
 	tone_length = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_LENGTH);
