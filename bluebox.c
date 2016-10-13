@@ -263,7 +263,7 @@ static volatile uint8_t longpress_flag = FALSE;
 void eeprom_store(uint8_t);
 void eeprom_playback(uint8_t);
 
-uint8_t ee_data[] EEMEM = {0,99,75,0,13,10,1,3,1,12};
+uint8_t ee_data[] EEMEM = {0,0,75,0,10,1,3,1,12};
 
 int main(void)
 {
@@ -285,7 +285,6 @@ int main(void)
 	// and make noise to let the user know something's wrong.
 	if (tone_mode < MODE_MIN || tone_mode > MODE_MAX) {
 		tone_mode = MODE_MIN;
-
 		for (key = 0; key < 4; key++) {
 			play(75,880,880);
 			sleep_ms(66);
@@ -619,19 +618,6 @@ void process(uint8_t key)
 } /* void process(uint8_t key) */
 
 
-void longpress_start(void)
-{
-	longpress_counter = LONGPRESS_TIME;
-	longpress_on = TRUE;
-}
-
-
-void longpress_stop(void)
-{
-	longpress_on = FALSE;
-}
-
-
 /*
  * uint8_t getkey(void)
  *
@@ -701,6 +687,19 @@ uint8_t getkey(void)
 	return 0;
 }  /* uint8_t getkey() */
 #endif	// #ifdef KEYPAD_16, #else
+
+
+void longpress_start(void)
+{
+	longpress_counter = LONGPRESS_TIME;
+	longpress_on = TRUE;
+}
+
+
+void longpress_stop(void)
+{
+	longpress_on = FALSE;
+}
 
 
 void init_ports(void)
