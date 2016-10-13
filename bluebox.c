@@ -126,9 +126,6 @@ const unsigned char sine_table[] PROGMEM = {
 #define SAMPLES_PER_HERTZ_TIMES_256	(SINE_SAMPLES * (TICKS_PER_CYCLE << STEP_SHIFT)) / (F_CPU / 256)
 #define OVERFLOW_PER_MILLISEC (F_CPU / TICKS_PER_CYCLE / 1000)
 
-#define cbi(var, mask)	((var) &= (uint8_t)~(1 << mask))
-#define sbi(var, mask)	((var) |= (uint8_t)(1 << mask))
-
 #define TIMER0_PRESCALE_1	(1<<CS00)
 #define TIMER0_PRESCALE_8	(1<<CS01)
 #define TIMER0_PRESCALE_64	((1<<CS01)|(1<<CS00))
