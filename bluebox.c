@@ -114,6 +114,7 @@ const unsigned char sine_table[] PROGMEM = {
 #define MODE_REDBOX	0x02
 #define MODE_GREENBOX	0x03
 #define MODE_PULSE	0x04
+#define MODE_MAX	MODE_PULSE
 
 #define SEIZE_LENGTH	1000
 #define SEIZE_PAUSE	1500
@@ -217,17 +218,17 @@ do { \
 #define EEPROM_STARTUP_TONE_MODE		0x01
 #define EEPROM_STARTUP_TONE_LENGTH		0x02
 #define EEPROM_MEM1				0x03
-#define EEPROM_MEM2				EPROM_MEM1 + EEPROM_CHUNK_SIZE
-#define EEPROM_MEM3				EPROM_MEM2 + EEPROM_CHUNK_SIZE
-#define EEPROM_MEM4				EPROM_MEM3 + EEPROM_CHUNK_SIZE
-#define EEPROM_MEM5				EPROM_MEM4 + EEPROM_CHUNK_SIZE
-#define EEPROM_MEM6				EPROM_MEM5 + EEPROM_CHUNK_SIZE
-#define EEPROM_MEM7				EPROM_MEM6 + EEPROM_CHUNK_SIZE
-#define EEPROM_MEM8				EPROM_MEM7 + EEPROM_CHUNK_SIZE
-#define EEPROM_MEM9				EPROM_MEM8 + EEPROM_CHUNK_SIZE
-#define EEPROM_MEM10				EPROM_MEM9 + EEPROM_CHUNK_SIZE
-#define EEPROM_MEM11				EPROM_MEM10 + EEPROM_CHUNK_SIZE
-#define EEPROM_MEM12				EPROM_MEM11 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM2				EEPROM_MEM1 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM3				EEPROM_MEM2 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM4				EEPROM_MEM3 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM5				EEPROM_MEM4 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM6				EEPROM_MEM5 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM7				EEPROM_MEM6 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM8				EEPROM_MEM7 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM9				EEPROM_MEM8 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM10				EEPROM_MEM9 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM11				EEPROM_MEM10 + EEPROM_CHUNK_SIZE
+#define EEPROM_MEM12				EEPROM_MEM11 + EEPROM_CHUNK_SIZE
 
 typedef uint8_t bool;
 
@@ -258,7 +259,10 @@ static uint16_t	longpress_counter;
 static uint8_t	longpress_on = FALSE;
 static volatile uint8_t longpress_flag = FALSE;
 
-uint8_t ee_data[] EEMEM = {0,0,75};
+void eeprom_store(uint8_t);
+void eeprom_playback(uint8_t);
+
+uint8_t ee_data[] EEMEM = {0,0,75,0,13,10,1,3,1,12};
 
 int main(void)
 {
@@ -349,17 +353,32 @@ int main(void)
 		do { key = getkey(); }
 		while (key == KEY_NOTHING);
 
-		process(key);
+		if (playback_mode) {
+			if (key == KEY_SEIZE)
+				process(key);
+			else
+				eeprom_playback(key);
+		} else
+			process(key);
 
 		// Wait for release or long-press
 		longpress_start();
 		while (key == getkey() && key != KEY_NOTHING) {
 			if (longpress_flag) {
-				play(75, 1700, 1700);
+				if (key == KEY_SEIZE) {
+					if (playback_mode == FALSE) {
+						playback_mode = TRUE;
+						play(75, 1300, 1300);
+						play(75, 1700, 1700);
+					} else {
+						playback_mode = FALSE;
+						play(75, 1700, 1700);
+						play(75, 1300, 1300);
+					}
+				} else
+					if (!playback_mode)
+						eeprom_store(key);
 
-				// do long-press stuff here
-
-				play(1000, 1500, 1500);
 				while (key == getkey());
 				break;
 			}
@@ -369,6 +388,72 @@ int main(void)
 	return 0;
 } /* void main() */
 
+
+
+void eeprom_store(uint8_t key)
+{
+	play(75, 1700, 1700);
+	// nothing here yet
+	play(1000, 1500, 1500);
+}
+
+
+/*
+ * void eeprom_playback(uint8_t key)
+ *
+ * Read the EEPROM memory chunk corresponding to the specified key.
+ * Set the tone mode to the one specified by the first byte of the chunk.
+ * Then play back the rest of the keys until we reach the end of the
+ * chunk or hit 0xFF, which indicates the end of the sequence.
+ *
+ * When playing back 2600, we have a special pause there to wait for the
+ * winkback before proceeding.
+ *
+ */
+
+void eeprom_playback(uint8_t key)
+{
+	uint8_t mem[EEPROM_CHUNK_SIZE];
+	uint16_t chunk;
+	uint8_t i;
+	uint8_t tone_mode_temp;
+
+	switch (key) {
+	case KEY_1:	chunk = EEPROM_MEM1; break;
+	case KEY_2:	chunk = EEPROM_MEM2; break;
+	case KEY_3:	chunk = EEPROM_MEM3; break;
+	case KEY_4:	chunk = EEPROM_MEM4; break;
+	case KEY_5:	chunk = EEPROM_MEM5; break;
+	case KEY_6:	chunk = EEPROM_MEM6; break;
+	case KEY_7:	chunk = EEPROM_MEM7; break;
+	case KEY_8:	chunk = EEPROM_MEM8; break;
+	case KEY_9:	chunk = EEPROM_MEM9; break;
+	case KEY_STAR:	chunk = EEPROM_MEM10; break;
+	case KEY_0:	chunk = EEPROM_MEM11; break;
+	case KEY_HASH:	chunk = EEPROM_MEM12; break;
+	default: return;
+	}
+
+	eeprom_read_block((uint8_t *)mem, (void *)chunk, EEPROM_CHUNK_SIZE);
+
+	// Abort if this chunk doesn't start with a valid mode.
+	if (mem[0] < MODE_MF || mem[0] > MODE_MAX)
+		return;
+
+	tone_mode_temp = tone_mode;
+	tone_mode = mem[0];
+
+	for (i = 1; i < EEPROM_CHUNK_SIZE; i++) {
+		if (mem[i] == 0xff) break;
+		process(mem[i]);
+		if (mem[i] == KEY_SEIZE)
+			sleep_ms(SEIZE_PAUSE);
+		else
+			sleep_ms(tone_length);
+	}
+	tone_mode = tone_mode_temp;
+	return;
+}
 
 #if defined(KEYPAD_16) || defined(KEYPAD_16_REV)
 #error 16-keys not yet implemented
@@ -400,16 +485,9 @@ void process(uint8_t key)
 {
 	if (key == 0) return;
 
-	// If playing memories, set the correct EE bank to play back
-	if (playback_mode == FALSE) {
-		// stuff to set up tone_length and so on.
-	}
-
 	// The 2600 key always plays 2600, so catch it here.
 	if (key == KEY_SEIZE) {
 		play(SEIZE_LENGTH, 2600, 2600);
-		if (playback_mode == TRUE)
-			sleep_ms(SEIZE_PAUSE);
 		return;
 	}
 
