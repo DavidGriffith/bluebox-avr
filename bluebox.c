@@ -799,7 +799,7 @@ ISR(TIM0_OVF_vect)
 		tone_a_place -= (SINE_SAMPLES << STEP_SHIFT);
 	if(tone_b_place >= (SINE_SAMPLES << STEP_SHIFT))
 		tone_b_place -= (SINE_SAMPLES << STEP_SHIFT);
-	} else OCR0A = SINE_MIDPOINT;
+	} else OCR0A = SINE_MIDPOINT; // send 0V to PWM output
 
 	// count milliseconds
 	millisec_counter--;
