@@ -36,10 +36,14 @@
  */
 
 /*
- * Uncomment this to use a 4X4 keypad.
- * Otherwise, a 3X4 keypad is assumed.
+ * One and only one of these must be uncommented.
+ * The REV ones are for buttons mounted on the solder side.
+ *
  */
+#define KEYPAD_13
+//#define KEYPAD_13_REV
 //#define KEYPAD_16
+//#define KEYPAD_13_REV
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -143,8 +147,36 @@ do { \
 #define TONE_LENGTH_FAST	75
 #define TONE_LENGTH_SLOW	120
 
-#ifdef KEYPAD_16
 #define KEY_NOTHING	0
+#ifdef KEYPAD_13
+#define KEY_1		1
+#define KEY_2		2
+#define KEY_3		3
+#define KEY_4		4
+#define KEY_5		5
+#define KEY_6		6
+#define KEY_7		7
+#define KEY_8		8
+#define KEY_9		9
+#define KEY_STAR	10
+#define KEY_0		11
+#define KEY_HASH	12
+#define KEY_SEIZE	13
+#elif KEYPAD_13_REV
+#define KEY_1		3
+#define KEY_2		2
+#define KEY_3		1
+#define KEY_4		6
+#define KEY_5		5
+#define KEY_6		4
+#define KEY_7		9
+#define KEY_8		8
+#define KEY_9		7
+#define KEY_STAR	12
+#define KEY_0		11
+#define KEY_HASH	10
+#define KEY_SEIZE	13
+#elif KEYPAD_16
 #define KEY_1		1
 #define KEY_2		2
 #define KEY_3		3
@@ -161,21 +193,25 @@ do { \
 #define KEY_0		14
 #define KEY_HASH	15
 #define KEY_D		16
-#else
-#define KEY_NOTHING	0
-#define KEY_1		1
-#define KEY_2		2
-#define KEY_3		3
-#define KEY_4		4
-#define KEY_5		5
+#elif KEYPAD_16_REV
+#define KEY_1		4
+#define KEY_2		3
+#define KEY_3		2
+#define KEY_A		1
+#define KEY_4		8
+#define KEY_5		7
 #define KEY_6		6
-#define KEY_7		7
-#define KEY_8		8
-#define KEY_9		9
-#define KEY_STAR	10
-#define KEY_0		11
-#define KEY_HASH	12
-#define KEY_SEIZE	13
+#define KEY_B		5
+#define KEY_7		12
+#define KEY_8		11
+#define KEY_9		10
+#define KEY_C		9
+#define KEY_STAR	16
+#define KEY_0		15
+#define KEY_HASH	14
+#define KEY_D		13
+#else
+#error One and only one of the following must be defined: KEYPAD_13 KEYPAD_13_REV KEYPAD_16  KEYPAD_16_REV
 #endif
 
 /* Number of milliseconds to make for a long press */
@@ -341,7 +377,8 @@ int main(void)
 } /* void main() */
 
 
-#ifdef KEYPAD_16
+#if defined(KEYPAD_16) || defined(KEYPAD_16_REV)
+#error 16-keys not yet implemented
 /*
  * void process(uint8_t key)
  *
