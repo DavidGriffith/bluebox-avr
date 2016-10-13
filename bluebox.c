@@ -141,8 +141,6 @@ do { \
     TCCR0B = (x);\
 } while (0)
 #define TIMER0_OFF()	TCCR0A &= ~((1<<CS02)|(1<<CS01)|(1<<CS00))
-#define TONES_ON()	TIMER0_ON(TIMER0_PRESCALE_1)
-#define TONES_OFF()	TIMER0_OFF()
 
 #define TONE_LENGTH_FAST	75
 #define TONE_LENGTH_SLOW	120
@@ -276,8 +274,7 @@ int main(void)
 	// Start TIMER0
 	// The timer is counting from 0 to 255 -- 256 values.
 	// The prescaler is 1.  Therefore our PWM frequency is F_CPU / 256.
-	TCCR0A = ((1<<COM0A1)|(1<<WGM01)|(1<<WGM00));
-	TCCR0B = (TIMER0_PRESCALE_1);
+	TIMER0_ON(TIMER0_PRESCALE_1);
 
 	// Read setup bytes
 	tone_mode = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE);
@@ -373,7 +370,6 @@ int main(void)
 		longpress_stop();
 	}
 	return 0;
-
 } /* void main() */
 
 
