@@ -262,6 +262,7 @@ static volatile uint8_t longpress_flag = FALSE;
 
 void eeprom_store(uint8_t);
 void eeprom_playback(uint8_t);
+uint16_t key2chunk(uint8_t);
 
 uint8_t ee_data[] EEMEM = {0,0,75,0,10,1,3,1,12};
 
@@ -404,20 +405,12 @@ void eeprom_playback(uint8_t key)
 	uint8_t i;
 	uint8_t tone_mode_temp;
 
-	switch (key) {
-	case KEY_1:	chunk = EEPROM_MEM1; break;
-	case KEY_2:	chunk = EEPROM_MEM2; break;
-	case KEY_3:	chunk = EEPROM_MEM3; break;
-	case KEY_4:	chunk = EEPROM_MEM4; break;
-	case KEY_5:	chunk = EEPROM_MEM5; break;
-	case KEY_6:	chunk = EEPROM_MEM6; break;
-	case KEY_7:	chunk = EEPROM_MEM7; break;
-	case KEY_8:	chunk = EEPROM_MEM8; break;
-	case KEY_9:	chunk = EEPROM_MEM9; break;
-	case KEY_STAR:	chunk = EEPROM_MEM10; break;
-	case KEY_0:	chunk = EEPROM_MEM11; break;
-	case KEY_HASH:	chunk = EEPROM_MEM12; break;
-	default: return;
+	chunk = key2chunk(key);
+	if ((void *)chunk == NULL) {
+		play(1000, 1500, 1500);
+		sleep_ms(66);
+		play(1000, 1500, 1500);
+		return;
 	}
 
 	eeprom_read_block((uint8_t *)mem, (void *)chunk, EEPROM_CHUNK_SIZE);
@@ -440,6 +433,27 @@ void eeprom_playback(uint8_t key)
 	tone_mode = tone_mode_temp;
 	return;
 }
+
+
+uint16_t key2chunk(uint8_t key)
+{
+	switch (key) {
+	case KEY_1:	return EEPROM_MEM1; break;
+	case KEY_2:	return EEPROM_MEM2; break;
+	case KEY_3:	return EEPROM_MEM3; break;
+	case KEY_4:	return EEPROM_MEM4; break;
+	case KEY_5:	return EEPROM_MEM5; break;
+	case KEY_6:	return EEPROM_MEM6; break;
+	case KEY_7:	return EEPROM_MEM7; break;
+	case KEY_8:	return EEPROM_MEM8; break;
+	case KEY_9:	return EEPROM_MEM9; break;
+	case KEY_STAR:	return EEPROM_MEM10; break;
+	case KEY_0:	return EEPROM_MEM11; break;
+	case KEY_HASH:	return EEPROM_MEM12; break;
+	default: return (uint16_t) NULL;
+	}
+}
+
 
 #if defined(KEYPAD_16) || defined(KEYPAD_16_REV)
 #error 16-keys not yet implemented
