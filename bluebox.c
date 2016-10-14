@@ -379,7 +379,23 @@ int main(void)
 
 void eeprom_store(uint8_t key)
 {
+	uint8_t ee_buffer[EEPROM_CHUNK_SIZE];
+	uint16_t i;
+
 	play(75, 1700, 1700);
+
+	ee_buffer[0] = 0;
+	ee_buffer[1] = 1;
+	ee_buffer[2] = 12;
+	ee_buffer[3] = 3;
+	ee_buffer[4] = 10;
+	ee_buffer[5] = 0xff;
+
+	i = key2chunk(key);
+
+	eeprom_update_block((uint8_t *)ee_buffer, (void *)i, EEPROM_CHUNK_SIZE);
+	eeprom_busy_wait();
+
 	// nothing here yet
 	play(1000, 1500, 1500);
 }
