@@ -362,9 +362,9 @@ int main(void)
 		if (key > KEY_NOTHING) play(1000, 1700, 1700);
 	}
 
-	while (key == getkey());	// Wait for key to be released
+	while (key == getkey());	// Wait for release
 
-	// Normal operation happens here
+	// Here is the main loop
 	while (1) {
 
 		do { key = getkey(); }
@@ -383,7 +383,9 @@ int main(void)
 		longpress_start();
 		while (key == getkey() && key != KEY_NOTHING) {
 			if (longpress_flag) {
+				// Long-press on 2600 toggles playback mode
 				if (key == KEY_SEIZE) {
+					// Clear buffer when toggling playback
 					rbuf_init(&rbuf);
 					just_flipped = TRUE;
 					if (playback_mode == FALSE) {
@@ -395,19 +397,20 @@ int main(void)
 						play(75, 1700, 1700);
 						play(75, 1300, 1300);
 					}
-				} else
+				} else { // Store the buffer in EEPROM
 					if (!playback_mode) {
 						eeprom_store(key);
-						rbuf_init(&rbuf);
 						just_wrote = TRUE;
 					}
-
-
+				}
+				// Done processing long-press
 				while (key == getkey());
 				break;
 			}
 		}
 		longpress_stop();
+
+		// Refrain from putting long-presses into the memory buffer
 		if (!playback_mode && !just_flipped && !just_wrote) {
 			rbuf_insert(&rbuf, key);
 		}
@@ -417,8 +420,12 @@ int main(void)
 	return 0;
 } /* void main() */
 
-
-
+/*
+ * void eeprom_store(uint8_t key)
+ *
+ * Unload the ring buffer into a linear buffer for writing to EEPROM.
+ *
+ */
 void eeprom_store(uint8_t key)
 {
 	uint8_t ee_buffer[EEPROM_CHUNK_SIZE];
@@ -763,13 +770,21 @@ uint8_t getkey(void)
 #endif	// #ifdef KEYPAD_16, #else
 
 
+
+/*
+ * Turn on the long-press millisecond counter
+ *
+ */
 void longpress_start(void)
 {
 	longpress_counter = LONGPRESS_TIME;
 	longpress_on = TRUE;
 }
 
-
+/*
+ * Turn off the long-press millisecond counter
+ *
+ */
 void longpress_stop(void)
 {
 	longpress_on = FALSE;
@@ -965,6 +980,9 @@ ISR(TIM0_OVF_vect)
  * Below are functions for implementing a ring buffer.
  * They was adapted from Dean Camera's sample code at
  * http://www.fourwalledcubicle.com/files/LightweightRingBuff.h
+ *
+ * Further reading:
+ *    https://en.wikipedia.org/wiki/Circular_buffer
  *
  */
 
