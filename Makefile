@@ -16,7 +16,7 @@ ISP	= usbtiny	# edit this line for your programmer
 
 AVRDUDE = avrdude -c $(ISP) -p $(PROG_DEVICE)
 
-CFLAGS  =  -I. -DDEBUG_LEVEL=0 -Wfatal-errors
+CFLAGS  =  -I. -std=c99 -DDEBUG_LEVEL=0 -Wfatal-errors
 OBJECTS =  bluebox.o
 PROJECT =  bluebox
 

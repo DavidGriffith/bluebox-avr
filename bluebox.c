@@ -47,8 +47,10 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include <util/delay.h>		/* for _delay_ms() */
+#include <util/atomic.h>	/* for circular buffer stuff */
 #include <avr/io.h>
 #include <avr/interrupt.h>	/* for sei() */
 #include <avr/pgmspace.h>
@@ -119,6 +121,9 @@ const unsigned char sine_table[] PROGMEM = {
 
 #define SEIZE_LENGTH	1000
 #define SEIZE_PAUSE	1500
+#define REDBOX_PAUSE	500
+#define GREENBOX_PAUSE	500
+
 #define KP_LENGTH	120
 
 #define SINE_SAMPLES	255UL
@@ -231,7 +236,19 @@ do { \
 #define EEPROM_MEM11				EEPROM_MEM10 + EEPROM_CHUNK_SIZE
 #define EEPROM_MEM12				EEPROM_MEM11 + EEPROM_CHUNK_SIZE
 
-typedef uint8_t bool;
+#define BUFFER_SIZE	EEPROM_CHUNK_SIZE
+
+//typedef uint8_t bool;
+
+typedef uint8_t rbuf_data_t;
+typedef uint8_t rbuf_count_t;
+
+typedef struct {
+	rbuf_data_t 	buffer[BUFFER_SIZE];
+	rbuf_data_t	*in;
+	rbuf_data_t	*out;
+	rbuf_count_t	count;
+} rbuf_t;
 
 uint8_t tone_mode;
 uint8_t tone_length;
@@ -264,15 +281,28 @@ void eeprom_store(uint8_t);
 void eeprom_playback(uint8_t);
 uint16_t key2chunk(uint8_t);
 
-uint8_t ee_data[] EEMEM = {0,0,75,0,10,1,3,1,12};
+static inline void rbuf_init(rbuf_t* const);
+static inline rbuf_count_t rbuf_getcount(rbuf_t* const);
+static inline bool rbuf_isempty(rbuf_t*);
+static inline void rbuf_insert(rbuf_t* const, const rbuf_data_t);
+static inline rbuf_data_t rbuf_remove(rbuf_t* const);
+
+rbuf_t	rbuf;
+
+uint8_t ee_data[] EEMEM = {0,0,75,0};
 
 int main(void)
 {
 	uint8_t key;
 	bool	startup_set = FALSE;
+	bool	just_flipped = FALSE;
+	bool	just_wrote = FALSE;
+
 
 	init_ports();
 	init_adc();
+
+	rbuf_init(&rbuf);
 
 	// Start TIMER0
 	// The timer is counting from 0 to 255 -- 256 values.
@@ -341,6 +371,7 @@ int main(void)
 		while (key == KEY_NOTHING);
 
 		if (playback_mode) {
+			rbuf_init(&rbuf);
 			if (key == KEY_SEIZE)
 				process(key);
 			else
@@ -353,6 +384,8 @@ int main(void)
 		while (key == getkey() && key != KEY_NOTHING) {
 			if (longpress_flag) {
 				if (key == KEY_SEIZE) {
+					rbuf_init(&rbuf);
+					just_flipped = TRUE;
 					if (playback_mode == FALSE) {
 						playback_mode = TRUE;
 						play(75, 1300, 1300);
@@ -363,14 +396,23 @@ int main(void)
 						play(75, 1300, 1300);
 					}
 				} else
-					if (!playback_mode)
+					if (!playback_mode) {
 						eeprom_store(key);
+						rbuf_init(&rbuf);
+						just_wrote = TRUE;
+					}
+
 
 				while (key == getkey());
 				break;
 			}
 		}
 		longpress_stop();
+		if (!playback_mode && !just_flipped && !just_wrote) {
+			rbuf_insert(&rbuf, key);
+		}
+		just_flipped = FALSE;
+		just_wrote = FALSE;
 	}
 	return 0;
 } /* void main() */
@@ -384,19 +426,19 @@ void eeprom_store(uint8_t key)
 
 	play(75, 1700, 1700);
 
-	ee_buffer[0] = 0;
-	ee_buffer[1] = 1;
-	ee_buffer[2] = 12;
-	ee_buffer[3] = 3;
-	ee_buffer[4] = 10;
-	ee_buffer[5] = 0xff;
+	ee_buffer[0] = tone_mode;
+	for (i = 1; i < EEPROM_CHUNK_SIZE; i++) {
+		if (rbuf_isempty(&rbuf))
+			ee_buffer[i] = 0xff;
+		else
+			ee_buffer[i] = rbuf_remove(&rbuf);
+	}
 
 	i = key2chunk(key);
 
 	eeprom_update_block((uint8_t *)ee_buffer, (void *)i, EEPROM_CHUNK_SIZE);
 	eeprom_busy_wait();
 
-	// nothing here yet
 	play(1000, 1500, 1500);
 }
 
@@ -578,6 +620,7 @@ void process(uint8_t key)
 		case KEY_8: play(350, 1000, 1000);  	// UK 50 pence
 			break;
 		}
+		if (playback_mode) sleep_ms(REDBOX_PAUSE);
 	} else if (tone_mode == MODE_GREENBOX) {
 		switch(key) {
 		// Using 2600 wink
@@ -631,6 +674,7 @@ void process(uint8_t key)
 			play(700, 1500, 1700);
 			break;
 		}
+	if (playback_mode) sleep_ms(GREENBOX_PAUSE);
 	} else if (tone_mode == MODE_PULSE) {
 		switch (key) {
 		case KEY_1: pulse(1); break;
@@ -914,4 +958,132 @@ ISR(TIM0_OVF_vect)
 			}
 		}
 	}
+}
+
+
+/*
+ * Below are functions for implementing a ring buffer.
+ * They was adapted from Dean Camera's sample code at
+ * http://www.fourwalledcubicle.com/files/LightweightRingBuff.h
+ *
+ */
+
+/*
+ * Initializes a ring buffer ready for use. Buffers must be initialized
+ * via this function before any operations are called upon them. Already
+ * initialized buffers may be reset by re-initializing them using this
+ * function.
+ *
+ * Parameter:
+ *	OUT buffer: Pointer to a ring buffer structure to initialize
+ *
+ */
+static inline void rbuf_init(rbuf_t* const buffer)
+{
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		buffer->in    = buffer->buffer;
+		buffer->out   = buffer->buffer;
+		buffer->count = 0;
+	}
+}
+
+
+/*
+ * Retrieves the minimum number of bytes stored in a particular buffer.
+ * This value is computed by entering an atomic lock on the buffer while
+ * the IN and OUT locations are fetched, so that the buffer cannot be
+ * modified while the computation takes place. This value should be
+ * cached when reading out the contents of the buffer, so that as small
+ * a time as possible is spent in an atomic lock.
+ *
+ * NOTE: The value returned by this function is guaranteed to only be
+ *   the minimum number of bytes stored in the given buffer; this value
+ *   may change as other threads write new data and so the returned
+ *   number should be used only to determine how many successive reads
+ *   may safely be performed on the buffer.
+ *
+ * Parameter:
+ *	OUT buffer: Pointer to a ring buffer structure whose count is
+ *		    to be computed.
+ *
+ */
+static inline rbuf_count_t rbuf_getcount(rbuf_t* const buffer)
+{
+	rbuf_count_t count;
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		count = buffer->count;
+	}
+	return count;
+}
+
+
+/*
+ * Atomically determines if the specified ring buffer contains any data.
+ * This should be tested before removing data from the buffer, to ensure
+ * that the buffer does not underflow.
+ *
+ * If the data is to be removed in a loop, store the total number of
+ * bytes stored in the buffer (via a call to the rbuf_getcount()
+ * function) in a temporary variable to reduce the time spent in
+ * atomicity locks.
+ *
+ * Parameters:
+ *	IN/OUT buffer: Pointer to a ring buffer structure to insert into
+ *	return: Boolean true if the buffer contains no free space, false
+ *		otherwise.
+ *
+ */
+static inline bool rbuf_isempty(rbuf_t* buffer)
+{
+	return (rbuf_getcount(buffer) == 0);
+}
+
+
+/*
+ * Inserts an element into the ring buffer.
+ *
+ * NOTE: Only one execution thread (main program thread or an ISR) may
+ *	 insert into a single buffer otherwise data corruption may
+ *	 occur. Insertion and removal may occur from different execution
+ *	 threads.
+ *
+ * Parameters:
+ *	IN/OUT buffer: Pointer to a ring buffer structure to insert into.
+ *	IN data: Data element to insert into the buffer.
+ *
+ */
+static inline void rbuf_insert(rbuf_t* const buffer, const rbuf_data_t data)
+{
+	*buffer->in = data;
+	if (++buffer->in == &buffer->buffer[BUFFER_SIZE])
+		buffer->in = buffer->buffer;
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		buffer->count++;
+	}
+}
+
+
+/* Removes an element from the ring buffer.
+ *
+ * NOTE: Only one execution thread (main program thread or an ISR) may
+ * remove from a single buffer otherwise data corruption may occur.
+ * Insertion and removal may occur from different execution threads.
+ *
+ * Parameters:
+ *	IN/OUT buffer: Pointer to a ring buffer structure to retrieve from.
+ *	return: Next data element stored in the buffer.
+ *
+ */
+static inline rbuf_data_t rbuf_remove(rbuf_t* const buffer)
+{
+	rbuf_data_t data = *buffer->out;
+
+	if (++buffer->out == &buffer->buffer[BUFFER_SIZE])
+		buffer->out = buffer->buffer;
+
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		buffer->count--;
+	}
+
+	return data;
 }
