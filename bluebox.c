@@ -736,31 +736,31 @@ uint8_t getkey(void)
 		// These values calculated with Vdd = 5 volts DC
 
 		// 4.64 volts.  ADC value = 246
-		if (ADCH > 233 && ADCH <= 256) return KEY_1;
+		if (voltage > 233 ) return KEY_1;
 		// 4.29 volts.  ADC value = 219
-		if (ADCH > 211 && ADCH <= 232) return KEY_2;
+		if (voltage > 211 && voltage <= 232) return KEY_2;
 		// 3.93 volts.  ADC value = 201
-		if (ADCH > 192 && ADCH <= 210) return KEY_3;
+		if (voltage > 192 && voltage <= 210) return KEY_3;
 		// 3.57 volts.  ADC value = 183
-		if (ADCH > 174 && ADCH <= 191) return KEY_4;
+		if (voltage > 174 && voltage <= 191) return KEY_4;
 		// 3.21 volts.  ADC value = 165
-		if (ADCH > 155 && ADCH <= 173) return KEY_5;
+		if (voltage > 155 && voltage <= 173) return KEY_5;
 		// 2.86 volts.  ADC value = 146
-		if (ADCH > 137 && ADCH <= 154) return KEY_6;
+		if (voltage > 137 && voltage <= 154) return KEY_6;
 		// 2.50 volts.  ADC value = 128
-		if (ADCH > 119 && ADCH <= 136) return KEY_7;
+		if (voltage > 119 && voltage <= 136) return KEY_7;
 		// 2.14 volts.  ADC value = 110
-		if (ADCH > 101 && ADCH <= 118) return KEY_8;
+		if (voltage > 101 && voltage <= 118) return KEY_8;
 		// 1.79 volts.  ADC value = 91
-		if (ADCH > 82  && ADCH <= 100) return KEY_9;
+		if (voltage > 82  && voltage <= 100) return KEY_9;
 		// 1.42 volts.  ADC value = 73
-		if (ADCH > 64  && ADCH <=  81) return KEY_STAR;
+		if (voltage > 64  && voltage <=  81) return KEY_STAR;
 		// 1.07 volts.  ADC value = 55
-		if (ADCH > 46  && ADCH <=  63) return KEY_0;
+		if (voltage > 46  && voltage <=  63) return KEY_0;
 		// 0.71 volts.  ADC value = 37
-		if (ADCH > 27  && ADCH <=  45) return KEY_HASH;
+		if (voltage > 27  && voltage <=  45) return KEY_HASH;
 		// 0.357 volts.  ADC value = 18
-		if (ADCH > 16   && ADCH <=  26) return KEY_SEIZE;
+		if (voltage > 16   && voltage <=  26) return KEY_SEIZE;
 		// We shouldn't get past here,
 		// but if we do, treat it like no key detected.
 		break;
@@ -981,6 +981,10 @@ ISR(TIM0_OVF_vect)
  * They was adapted from Dean Camera's sample code at
  * http://www.fourwalledcubicle.com/files/LightweightRingBuff.h
  *
+ * The atomic blocks here are probably not necessary for this particular
+ * program, but since it's likely this code will be borrowed for other
+ * things, I think it's best to do things right.
+ *
  * Further reading:
  *    https://en.wikipedia.org/wiki/Circular_buffer
  *
@@ -1072,10 +1076,10 @@ static inline bool rbuf_isempty(rbuf_t* buffer)
  */
 static inline void rbuf_insert(rbuf_t* const buffer, const rbuf_data_t data)
 {
-	*buffer->in = data;
-	if (++buffer->in == &buffer->buffer[BUFFER_SIZE])
-		buffer->in = buffer->buffer;
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		*buffer->in = data;
+		if (++buffer->in == &buffer->buffer[BUFFER_SIZE])
+			buffer->in = buffer->buffer;
 		buffer->count++;
 	}
 }
@@ -1094,14 +1098,12 @@ static inline void rbuf_insert(rbuf_t* const buffer, const rbuf_data_t data)
  */
 static inline rbuf_data_t rbuf_remove(rbuf_t* const buffer)
 {
-	rbuf_data_t data = *buffer->out;
-
-	if (++buffer->out == &buffer->buffer[BUFFER_SIZE])
-		buffer->out = buffer->buffer;
-
+	rbuf_data_t data;
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+		data = *buffer->out;
+		if (++buffer->out == &buffer->buffer[BUFFER_SIZE])
+			buffer->out = buffer->buffer;
 		buffer->count--;
 	}
-
 	return data;
 }
