@@ -289,7 +289,7 @@ static inline rbuf_data_t rbuf_remove(rbuf_t* const);
 
 rbuf_t	rbuf;
 
-uint8_t ee_data[] EEMEM = {0,0,75,0};
+uint8_t ee_data[] EEMEM = {0, MODE_MF, TONE_LENGTH_FAST};
 
 int main(void)
 {
@@ -310,7 +310,8 @@ int main(void)
 	TIMER0_ON(TIMER0_PRESCALE_1);
 
 	// Read setup bytes
-	tone_mode = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE);
+	tone_mode   = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE);
+	tone_length = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_LENGTH);
 
 	// If our startup mode is bogus, set something sensible
 	// and make noise to let the user know something's wrong.
@@ -322,9 +323,13 @@ int main(void)
 		}
 	}
 
-	tone_length = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_LENGTH);
-	if (tone_length < TONE_LENGTH_FAST || tone_length > TONE_LENGTH_SLOW)
+	if ((tone_length != TONE_LENGTH_SLOW) && (tone_length != TONE_LENGTH_FAST)) {
 		tone_length = TONE_LENGTH_FAST;
+		for (key = 0; key < 4; key++) {
+			play(75,1760,1760);
+			sleep_ms(66);
+		}
+	}
 
 	key = getkey();		// What key is held on startup?
 
@@ -573,17 +578,17 @@ void process(uint8_t key)
 		}
 	} else if (tone_mode == MODE_DTMF) {
 		switch (key) {
-		case KEY_1: play(tone_length, 697, 1209); break;
-		case KEY_2: play(tone_length, 697, 1336); break;
-		case KEY_3: play(tone_length, 697, 1477); break;
-		case KEY_4: play(tone_length, 770, 1209); break;
-		case KEY_5: play(tone_length, 770, 1336); break;
-		case KEY_6: play(tone_length, 770, 1477); break;
-		case KEY_7: play(tone_length, 852, 1209); break;
-		case KEY_8: play(tone_length, 852, 1336); break;
-		case KEY_9: play(tone_length, 852, 1477); break;
+		case KEY_1:    play(tone_length, 697, 1209); break;
+		case KEY_2:    play(tone_length, 697, 1336); break;
+		case KEY_3:    play(tone_length, 697, 1477); break;
+		case KEY_4:    play(tone_length, 770, 1209); break;
+		case KEY_5:    play(tone_length, 770, 1336); break;
+		case KEY_6:    play(tone_length, 770, 1477); break;
+		case KEY_7:    play(tone_length, 852, 1209); break;
+		case KEY_8:    play(tone_length, 852, 1336); break;
+		case KEY_9:    play(tone_length, 852, 1477); break;
 		case KEY_STAR: play(tone_length, 941, 1209); break;
-		case KEY_0: play(tone_length, 941, 1336); break;
+		case KEY_0:    play(tone_length, 941, 1336); break;
 		case KEY_HASH: play(tone_length, 941, 1477); break;
 		}
 	} else if (tone_mode == MODE_REDBOX) {
