@@ -56,8 +56,6 @@ let you know that you've switched modes.  To set the startup mode, hold
 the 2600hz key while turning the unit on.  This will cause a 1700hz tone 
 to play.  Then press a key for the mode you want to set as the startup 
 mode.  Two tones will then play to let you know that your desired mode 
-has been saved to memory.
-
-On startup and when setting startup mode, if you hold the hash key (\#), 
-this will toggle between a tone length and interval of 75 milliseconds 
-and 120 milliseconds.  Currently this setting is not saved.
+has been saved to memory.  Similarly, you can toggle the tone length of 
+MF and DTMF tones between 75 milliseconds and 120 milliseconds by 
+holding the hash key (\#).
