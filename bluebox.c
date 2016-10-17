@@ -216,6 +216,15 @@ do { \
 #error One and only one of the following must be defined: KEYPAD_13 KEYPAD_13_REV KEYPAD_16  KEYPAD_16_REV
 #endif
 
+#define DTMF_COL1	1209
+#define DTMF_COL2	1336
+#define DTMF_COL3	1477
+#define DTMF_COL4	1633
+#define DTMF_ROW1	697
+#define DTMF_ROW2	770
+#define DTMF_ROW3	852
+#define DTMF_ROW4	941
+
 /* Number of milliseconds to make for a long press */
 #define LONGPRESS_TIME	2000
 
@@ -578,18 +587,18 @@ void process(uint8_t key)
 		}
 	} else if (tone_mode == MODE_DTMF) {
 		switch (key) {
-		case KEY_1:    play(tone_length, 697, 1209); break;
-		case KEY_2:    play(tone_length, 697, 1336); break;
-		case KEY_3:    play(tone_length, 697, 1477); break;
-		case KEY_4:    play(tone_length, 770, 1209); break;
-		case KEY_5:    play(tone_length, 770, 1336); break;
-		case KEY_6:    play(tone_length, 770, 1477); break;
-		case KEY_7:    play(tone_length, 852, 1209); break;
-		case KEY_8:    play(tone_length, 852, 1336); break;
-		case KEY_9:    play(tone_length, 852, 1477); break;
-		case KEY_STAR: play(tone_length, 941, 1209); break;
-		case KEY_0:    play(tone_length, 941, 1336); break;
-		case KEY_HASH: play(tone_length, 941, 1477); break;
+		case KEY_1:    play(tone_length, DTMF_ROW1, DTMF_COL1); break;
+		case KEY_2:    play(tone_length, DTMF_ROW1, DTMF_COL2); break;
+		case KEY_3:    play(tone_length, DTMF_ROW1, DTMF_COL3); break;
+		case KEY_4:    play(tone_length, DTMF_ROW2, DTMF_COL1); break;
+		case KEY_5:    play(tone_length, DTMF_ROW2, DTMF_COL2); break;
+		case KEY_6:    play(tone_length, DTMF_ROW2, DTMF_COL3); break;
+		case KEY_7:    play(tone_length, DTMF_ROW3, DTMF_COL1); break;
+		case KEY_8:    play(tone_length, DTMF_ROW3, DTMF_COL2); break;
+		case KEY_9:    play(tone_length, DTMF_ROW3, DTMF_COL3); break;
+		case KEY_STAR: play(tone_length, DTMF_ROW4, DTMF_COL1); break;
+		case KEY_0:    play(tone_length, DTMF_ROW4, DTMF_COL2); break;
+		case KEY_HASH: play(tone_length, DTMF_ROW4, DTMF_COL3); break;
 		}
 	} else if (tone_mode == MODE_REDBOX) {
 		switch (key) {
