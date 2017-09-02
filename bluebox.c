@@ -164,6 +164,10 @@ do { \
 #define KEY_0		11
 #define KEY_HASH	12
 #define KEY_SEIZE	13
+#define KEY_A		90
+#define KEY_B		91
+#define KEY_C		92
+#define KEY_D		93
 #elif KEYPAD_13_REV
 #define KEY_1		3
 #define KEY_2		2
@@ -178,6 +182,10 @@ do { \
 #define KEY_0		11
 #define KEY_HASH	10
 #define KEY_SEIZE	13
+#define KEY_A		90
+#define KEY_B		91
+#define KEY_C		92
+#define KEY_D		93
 #elif KEYPAD_16
 #define KEY_1		1
 #define KEY_2		2
@@ -587,9 +595,13 @@ void process(uint8_t key)
 		case KEY_7: play(tone_length, 700, 1500); break;
 		case KEY_8: play(tone_length, 900, 1500); break;
 		case KEY_9: play(tone_length, 1100, 1500); break;
-		case KEY_STAR: play(KP_LENGTH, 1100, 1700); break;
+		case KEY_STAR: play(KP_LENGTH, 1100, 1700); break;   // KP
 		case KEY_0: play(tone_length, 1300, 1500); break;
-		case KEY_HASH: play(tone_length, 1500, 1700); break;
+		case KEY_HASH: play(tone_length, 1500, 1700); break; // ST
+		case KEY_A:    play(tone_length,  900, 1700); break; // Code 12
+		case KEY_B:    play(tone_length, 1300, 1700); break; // KP2
+		case KEY_C:    play(tone_length,  700, 1700); break; // Code 11
+		case KEY_D:    play(SEIZE_LENGTH, 2600, 2600); break; // Seize
 		}
 	} else if (tone_mode == MODE_DTMF) {
 		switch (key) {
@@ -605,6 +617,10 @@ void process(uint8_t key)
 		case KEY_STAR: play(tone_length, DTMF_ROW4, DTMF_COL1); break;
 		case KEY_0:    play(tone_length, DTMF_ROW4, DTMF_COL2); break;
 		case KEY_HASH: play(tone_length, DTMF_ROW4, DTMF_COL3); break;
+		case KEY_A:    play(tone_length, DTMF_ROW1, DTMF_COL4); break;
+		case KEY_B:    play(tone_length, DTMF_ROW2, DTMF_COL4); break;
+		case KEY_C:    play(tone_length, DTMF_ROW3, DTMF_COL4); break;
+		case KEY_D:    play(tone_length, DTMF_ROW4, DTMF_COL4); break;
 		}
 	} else if (tone_mode == MODE_REDBOX) {
 		switch (key) {
