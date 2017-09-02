@@ -234,10 +234,10 @@ do { \
 #define DTMF_ROW3	852
 #define DTMF_ROW4	941
 
-/* Number of milliseconds to make for a long press */
+/* Number of milliseconds to make for a long press. */
 #define LONGPRESS_TIME	2000
 
-/* two bytes, then 12 chunks of 41 (0x29) bytes each */
+/* Two bytes, then 12 chunks of 41 (0x29) bytes each. */
 #define EEPROM_CHUNK_SIZE			0x29
 #define EEPROM_STARTUP_TONE_MODE		0x01
 #define EEPROM_STARTUP_TONE_LENGTH		0x02
@@ -257,16 +257,6 @@ do { \
 #define BUFFER_SIZE	EEPROM_CHUNK_SIZE
 
 //typedef uint8_t bool;
-
-typedef uint8_t rbuf_data_t;
-typedef uint8_t rbuf_count_t;
-
-typedef struct {
-	rbuf_data_t 	buffer[BUFFER_SIZE];
-	rbuf_data_t	*in;
-	rbuf_data_t	*out;
-	rbuf_count_t	count;
-} rbuf_t;
 
 uint8_t tone_mode;
 uint8_t tone_length;
@@ -299,13 +289,26 @@ void eeprom_store(uint8_t);
 void eeprom_playback(uint8_t);
 uint16_t key2chunk(uint8_t);
 
+
+/* Ring buffer stuff */
+
+typedef uint8_t rbuf_data_t;
+typedef uint8_t rbuf_count_t;
+
+typedef struct {
+	rbuf_data_t 	buffer[BUFFER_SIZE];
+	rbuf_data_t	*in;
+	rbuf_data_t	*out;
+	rbuf_count_t	count;
+} rbuf_t;
+
+rbuf_t	rbuf;
+
 static inline void rbuf_init(rbuf_t* const);
 static inline rbuf_count_t rbuf_getcount(rbuf_t* const);
 static inline bool rbuf_isempty(rbuf_t*);
 static inline void rbuf_insert(rbuf_t* const, const rbuf_data_t);
 static inline rbuf_data_t rbuf_remove(rbuf_t* const);
-
-rbuf_t	rbuf;
 
 
 /* This is where we declare the default stored settings which are added
@@ -525,6 +528,12 @@ void eeprom_playback(uint8_t key)
 }
 
 
+/*
+ * uint16_t key2chunk(uint8_t key)
+ *
+ * Convert key to corresponding memory location.
+ *
+ */
 uint16_t key2chunk(uint8_t key)
 {
 	switch (key) {
