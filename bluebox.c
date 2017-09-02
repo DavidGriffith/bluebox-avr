@@ -624,13 +624,13 @@ void process(uint8_t key)
 		}
 	} else if (tone_mode == MODE_REDBOX) {
 		switch (key) {
-		case KEY_1: play(66, 1700, 2200);	// Nickel
+		case KEY_1: play(66, 1700, 2200);	// US Nickel
 			break;
-		case KEY_2: play(66, 1700, 2200);	// Dime
+		case KEY_2: play(66, 1700, 2200);	// US Dime
 			sleep_ms(66);
 			play(66, 1700, 2200);
 			break;
-		case KEY_3: play(33, 1700, 2200);	// Quarter
+		case KEY_3: play(33, 1700, 2200);	// US Quarter
 			sleep_ms(33);
 			play(33, 1700, 2200);
 			sleep_ms(33);
