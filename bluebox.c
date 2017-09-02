@@ -298,6 +298,12 @@ static inline rbuf_data_t rbuf_remove(rbuf_t* const);
 
 rbuf_t	rbuf;
 
+
+/* This is where we declare the default stored settings which are added
+ * by the "eeprom" Makefile target.  I ran into problems when I used the
+ * zeroth byte.  Then came across a warning from Atmel not to do that.
+ * I can't remember where I found that warning.
+ */
 uint8_t ee_data[] EEMEM = {0, MODE_MF, TONE_LENGTH_FAST};
 
 int main(void)
