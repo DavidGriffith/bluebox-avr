@@ -548,26 +548,6 @@ uint16_t key2chunk(uint8_t key)
 }
 
 
-#if defined(KEYPAD_16) || defined(KEYPAD_16_REV)
-#error 16-keys not yet implemented
-/*
- * void process(uint8_t key)
- *
- * Process regular keystroke for 16-key keypad
- *
- */
-void process(uint8_t key)
-{
-	// nothing here yet
-}
-
-uint8_t getkey(void)
-{
-	// nothing here yet
-}
-
-#else	// We're using a 13-key keypad
-
 /*
  * void process(uint8_t key)
  *
@@ -734,6 +714,16 @@ void process(uint8_t key)
 	}
 } /* void process(uint8_t key) */
 
+
+#if defined(KEYPAD_16) || defined(KEYPAD_16_REV)
+#error 16-keys not yet implemented
+
+uint8_t getkey(void)
+{
+	// nothing here yet
+}
+
+#else	// We're using a 13-key keypad
 
 /*
  * uint8_t getkey(void)
