@@ -236,7 +236,7 @@ do { \
 /* Number of milliseconds to make for a long press */
 #define LONGPRESS_TIME	2000
 
-/* two bytes, then 12 chunks of 41 bytes each */
+/* two bytes, then 12 chunks of 41 (0x29) bytes each */
 #define EEPROM_CHUNK_SIZE			0x29
 #define EEPROM_STARTUP_TONE_MODE		0x01
 #define EEPROM_STARTUP_TONE_LENGTH		0x02
