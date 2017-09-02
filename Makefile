@@ -6,21 +6,20 @@
 # Copyright: (c) 2008 by OBJECTIVE DEVELOPMENT Software GmbH
 # License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
 
-GCC_DEVICE  = attiny85
+AVR_CC       = avr-gcc
+CC_DEVICE    = attiny85
 PROG_DEVICE  = t85
-DEVICE_DEF = __AVR_ATtiny85__
-F_CPU   = 20000000UL	# in Hz
-FUSE_L  = 0xFF
-FUSE_H  = 0xDF
-ISP	= usbtiny	# edit this line for your programmer
+DEVICE_DEF   = __AVR_ATtiny85__
+F_CPU        = 20000000UL	# in Hz
+FUSE_L       = 0xFF
+FUSE_H       = 0xDF
+ISP	     = usbtiny		# edit this line for your programmer
+AVRDUDE      = avrdude -c $(ISP) -p $(PROG_DEVICE)
+CFLAGS       = -I. -std=c99 -DDEBUG_LEVEL=0 -Wfatal-errors
+OBJECTS      = bluebox.o
+PROJECT      = bluebox
 
-AVRDUDE = avrdude -c $(ISP) -p $(PROG_DEVICE)
-
-CFLAGS  =  -I. -std=c99 -DDEBUG_LEVEL=0 -Wfatal-errors
-OBJECTS =  bluebox.o
-PROJECT =  bluebox
-
-COMPILE = avr-gcc -Wall -Os -DF_CPU=$(F_CPU) -D$(DEVICE_DEF) $(CFLAGS) -mmcu=$(GCC_DEVICE)
+COMPILE = $(AVR_CC) -Wall -Os -DF_CPU=$(F_CPU) -D$(DEVICE_DEF) $(CFLAGS) -mmcu=$(CC_DEVICE)
 
 ##############################################################################
 # Fuse values for particular devices
