@@ -123,6 +123,7 @@ const unsigned char sine_table[] PROGMEM = {
 #define SEIZE_PAUSE	1500
 #define REDBOX_PAUSE	500
 #define GREENBOX_PAUSE	500
+#define PULSE_PAUSE	500
 
 #define KP_LENGTH	120
 
@@ -518,10 +519,6 @@ void eeprom_playback(uint8_t key)
 	for (i = 1; i < EEPROM_CHUNK_SIZE; i++) {
 		if (mem[i] == 0xff) break;
 		process(mem[i]);
-		if (mem[i] == KEY_SEIZE)
-			sleep_ms(SEIZE_PAUSE);
-		else
-			sleep_ms(tone_length);
 	}
 	tone_mode = tone_mode_temp;
 	return;
@@ -561,6 +558,8 @@ void process(uint8_t key)
 	// The 2600 key always plays 2600, so catch it here.
 	if (key == KEY_SEIZE) {
 		play(SEIZE_LENGTH, 2600, 2600);
+		if (playback_mode)
+			sleep_ms(SEIZE_PAUSE);
 		return;
 	}
 
@@ -583,6 +582,7 @@ void process(uint8_t key)
 		case KEY_C:    play(tone_length,  700, 1700); break; // Code 11
 		case KEY_D:    play(SEIZE_LENGTH, 2600, 2600); break; // Seize
 		}
+		sleep_ms(tone_length);
 	} else if (tone_mode == MODE_DTMF) {
 		switch (key) {
 		case KEY_1:    play(tone_length, DTMF_ROW1, DTMF_COL1); break;
@@ -602,6 +602,7 @@ void process(uint8_t key)
 		case KEY_C:    play(tone_length, DTMF_ROW3, DTMF_COL4); break;
 		case KEY_D:    play(tone_length, DTMF_ROW4, DTMF_COL4); break;
 		}
+		sleep_ms(tone_length);
 	} else if (tone_mode == MODE_REDBOX) {
 		switch (key) {
 		case KEY_1: play(66, 1700, 2200);	// US Nickel
@@ -643,7 +644,7 @@ void process(uint8_t key)
 		case KEY_8: play(350, 1000, 1000);  	// UK 50 pence
 			break;
 		}
-		if (playback_mode) sleep_ms(REDBOX_PAUSE);
+		sleep_ms(REDBOX_PAUSE);
 	} else if (tone_mode == MODE_GREENBOX) {
 		switch(key) {
 		// Using 2600 wink
@@ -697,7 +698,7 @@ void process(uint8_t key)
 			play(700, 1500, 1700);
 			break;
 		}
-	if (playback_mode) sleep_ms(GREENBOX_PAUSE);
+		sleep_ms(GREENBOX_PAUSE);
 	} else if (tone_mode == MODE_PULSE) {
 		switch (key) {
 		case KEY_1: pulse(1); break;
@@ -711,6 +712,7 @@ void process(uint8_t key)
 		case KEY_9: pulse(9); break;
 		case KEY_0: pulse(10); break;
 		}
+		sleep_ms(PULSE_PAUSE);
 	}
 } /* void process(uint8_t key) */
 
