@@ -586,17 +586,17 @@ void process(uint8_t key)
 
 	if (tone_mode == MODE_MF) {
 		switch (key) {
-		case KEY_1: play(tone_length, 700, 900); break;
-		case KEY_2: play(tone_length, 700, 1100); break;
-		case KEY_3: play(tone_length, 900, 1100); break;
-		case KEY_4: play(tone_length, 700, 1300); break;
-		case KEY_5: play(tone_length, 900, 1300); break;
-		case KEY_6: play(tone_length, 1100, 1300); break;
-		case KEY_7: play(tone_length, 700, 1500); break;
-		case KEY_8: play(tone_length, 900, 1500); break;
-		case KEY_9: play(tone_length, 1100, 1500); break;
+		case KEY_1:    play(tone_length, 700, 900); break;
+		case KEY_2:    play(tone_length, 700, 1100); break;
+		case KEY_3:    play(tone_length, 900, 1100); break;
+		case KEY_4:    play(tone_length, 700, 1300); break;
+		case KEY_5:    play(tone_length, 900, 1300); break;
+		case KEY_6:    play(tone_length, 1100, 1300); break;
+		case KEY_7:    play(tone_length, 700, 1500); break;
+		case KEY_8:    play(tone_length, 900, 1500); break;
+		case KEY_9:    play(tone_length, 1100, 1500); break;
 		case KEY_STAR: play(KP_LENGTH, 1100, 1700); break;   // KP
-		case KEY_0: play(tone_length, 1300, 1500); break;
+		case KEY_0:    play(tone_length, 1300, 1500); break;
 		case KEY_HASH: play(tone_length, 1500, 1700); break; // ST
 		case KEY_A:    play(tone_length,  900, 1700); break; // Code 12
 		case KEY_B:    play(tone_length, 1300, 1700); break; // KP2
