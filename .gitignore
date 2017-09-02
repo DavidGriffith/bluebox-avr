@@ -9,3 +9,5 @@
 *.obj
 *.cof
 *.bin
+.*swp
+*.txt
