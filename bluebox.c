@@ -1,8 +1,8 @@
 /*
  * Name:	bluebox.c
  * Author:	David Griffith <dave@661.org>
- * Date:	September 1, 2016
- * License:	?
+ * Date:	September 2, 2017
+ * License:	GNU GPL v3
  * Version:	0
  *
  * Fuse Settings:	L:FF H:DF
