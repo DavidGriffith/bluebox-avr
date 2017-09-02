@@ -7,10 +7,11 @@
  *
  * Fuse Settings:	L:FF H:DF
  *
- * This program implements a bluebox, redbox, and greenbox with PWM
- * synthesis on an AVR ATtiny85 8-pin microcontroller.  A single pin
- * detects 13 buttons through an ADC using a resistor ladder.  There are
- * 12 memory slots of up to 32 tones each.  Defaults are configurable.
+ * This program implements a bluebox, redbox, greenbox, and 2600 pulse
+ * dialer with PWM synthesis on an AVR ATtiny85 8-pin microcontroller.
+ * A single pin detects 13 buttons through an ADC using a resistor ladder.
+ * There are 12 memory slots of up to 32 tones each.
+ * Defaults are configurable.
  *
  * This is a rough translation / reimplementation / expansion of Don Froula's
  * PicBasicPro program for implementing a bluebox on a PIC12F683 8-pin
