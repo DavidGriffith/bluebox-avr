@@ -256,8 +256,6 @@ do { \
 
 #define BUFFER_SIZE	EEPROM_CHUNK_SIZE
 
-//typedef uint8_t bool;
-
 uint8_t tone_mode;
 uint8_t tone_length;
 bool  playback_mode = FALSE;
