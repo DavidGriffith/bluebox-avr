@@ -205,6 +205,7 @@ do { \
 #define KEY_0		14
 #define KEY_HASH	15
 #define KEY_D		16
+#define KEY_SEIZE	90
 #elif KEYPAD_16_REV
 #define KEY_1		4
 #define KEY_2		3
@@ -222,6 +223,7 @@ do { \
 #define KEY_0		15
 #define KEY_HASH	14
 #define KEY_D		13
+#define KEY_SEIZE	90
 #else
 #error One and only one of the following must be defined: KEYPAD_13 KEYPAD_13_REV KEYPAD_16  KEYPAD_16_REV
 #endif
@@ -257,10 +259,21 @@ do { \
 
 #define BUFFER_SIZE	EEPROM_CHUNK_SIZE
 
+/* This is where we declare the default stored settings which are added
+ * by the "eeprom" Makefile target.  I ran into problems when I used the
+ * zeroth byte.  Then came across a warning from Atmel not to do that.
+ * I can't remember where I found that warning.
+ */
+uint8_t ee_data[] EEMEM = {0, MODE_MF, TONE_LENGTH_FAST};
+
 uint8_t tone_mode;
 uint8_t tone_length;
 bool  playback_mode = FALSE;
 bool  tones_on = FALSE;
+
+bool	just_flipped = FALSE;
+bool	just_wrote = FALSE;
+
 
 uint16_t tone_a_step, tone_b_step;
 uint16_t tone_a_place, tone_b_place;
@@ -270,6 +283,7 @@ void  init_settings(void);
 void  init_adc(void);
 uint8_t getkey(void);
 void  process(uint8_t);
+void  process_longpress(uint8_t);
 void  play(uint32_t, uint32_t, uint32_t);
 void  pulse(uint8_t);
 
@@ -310,19 +324,10 @@ static inline void rbuf_insert(rbuf_t* const, const rbuf_data_t);
 static inline rbuf_data_t rbuf_remove(rbuf_t* const);
 
 
-/* This is where we declare the default stored settings which are added
- * by the "eeprom" Makefile target.  I ran into problems when I used the
- * zeroth byte.  Then came across a warning from Atmel not to do that.
- * I can't remember where I found that warning.
- */
-uint8_t ee_data[] EEMEM = {0, MODE_MF, TONE_LENGTH_FAST};
-
 int main(void)
 {
 	uint8_t key;
 	bool	startup_set = FALSE;
-	bool	just_flipped = FALSE;
-	bool	just_wrote = FALSE;
 
 
 	init_ports();
@@ -357,6 +362,8 @@ int main(void)
 		}
 	}
 
+/* This chunk is relevant only for 13-key blueboxes. */
+#if defined(KEYPAD_13) || defined(KEYPAD_13_REV)
 	key = getkey();		// What key is held on startup?
 
 	if (key == KEY_SEIZE) {	// We're setting a default mode
@@ -394,13 +401,15 @@ int main(void)
 	}
 
 	while (key == getkey());	// Wait for release
+#endif
 
-	// Here is the main loop
-	while (1) {
+	/* Main Loop */
+	while (TRUE) {
 
 		do { key = getkey(); }
 		while (key == KEY_NOTHING);
 
+// FIXME WTF is going on in this block???
 		if (playback_mode) {
 			rbuf_init(&rbuf);
 			if (key == KEY_SEIZE)
@@ -440,16 +449,14 @@ int main(void)
 			}
 		}
 		longpress_stop();
-
-		// Refrain from putting long-presses into the memory buffer
-		if (!playback_mode && !just_flipped && !just_wrote) {
+		if (!playback_mode && !just_flipped && !just_wrote)
 			rbuf_insert(&rbuf, key);
-		}
 		just_flipped = FALSE;
 		just_wrote = FALSE;
 	}
 	return 0;
 } /* void main() */
+
 
 /*
  * void eeprom_store(uint8_t key)
@@ -493,7 +500,6 @@ void eeprom_store(uint8_t key)
  * winkback before proceeding.
  *
  */
-
 void eeprom_playback(uint8_t key)
 {
 	uint8_t mem[EEPROM_CHUNK_SIZE];
@@ -512,7 +518,7 @@ void eeprom_playback(uint8_t key)
 	eeprom_read_block((uint8_t *)mem, (void *)chunk, EEPROM_CHUNK_SIZE);
 
 	// Abort if this chunk doesn't start with a valid mode.
-	if (mem[0] < MODE_MF || mem[0] > MODE_MAX)
+	if (mem[0] < MODE_MIN || mem[0] > MODE_MAX)
 		return;
 
 	tone_mode_temp = tone_mode;
@@ -563,6 +569,7 @@ void process(uint8_t key)
 {
 	if (key == 0) return;
 
+#if defined(KEYPAD_13) || defined(KEYPAD_13_REV)
 	// The 2600 key always plays 2600, so catch it here.
 	if (key == KEY_SEIZE) {
 		play(SEIZE_LENGTH, 2600, 2600);
@@ -570,6 +577,7 @@ void process(uint8_t key)
 			sleep_ms(SEIZE_PAUSE);
 		return;
 	}
+#endif
 
 	if (tone_mode == MODE_MF) {
 		switch (key) {
@@ -590,7 +598,10 @@ void process(uint8_t key)
 		case KEY_C:    play(tone_length,  700, 1700); break; // Code 11
 		case KEY_D:    play(SEIZE_LENGTH, 2600, 2600); break; // Seize
 		}
-		sleep_ms(tone_length);
+		if (key == KEY_D)
+			sleep_ms(SEIZE_PAUSE);
+		else
+			sleep_ms(tone_length);
 	} else if (tone_mode == MODE_DTMF) {
 		switch (key) {
 		case KEY_1:    play(tone_length, DTMF_ROW1, DTMF_COL1); break;
