@@ -271,10 +271,6 @@ uint8_t tone_length;
 bool  playback_mode = FALSE;
 bool  tones_on = FALSE;
 
-bool	just_flipped = FALSE;
-bool	just_wrote = FALSE;
-
-
 uint16_t tone_a_step, tone_b_step;
 uint16_t tone_a_place, tone_b_place;
 
@@ -419,40 +415,7 @@ int main(void)
 		} else
 			process_key(key);
 
-		// Wait for release or long-press
-		longpress_start();
-		while (key == getkey() && key != KEY_NOTHING) {
-			if (longpress_flag) {
-				// Long-press on 2600 toggles playback mode
-				if (key == KEY_SEIZE) {
-					// Clear buffer when toggling playback
-					rbuf_init(&rbuf);
-					just_flipped = TRUE;
-					if (playback_mode == FALSE) {
-						playback_mode = TRUE;
-						play(75, 1300, 1300);
-						play(75, 1700, 1700);
-					} else {
-						playback_mode = FALSE;
-						play(75, 1700, 1700);
-						play(75, 1300, 1300);
-					}
-				} else { // Store the buffer in EEPROM
-					if (!playback_mode) {
-						eeprom_store(key);
-						just_wrote = TRUE;
-					}
-				}
-				// Done processing long-press
-				while (key == getkey());
-				break;
-			}
-		}
-		longpress_stop();
-		if (!playback_mode && !just_flipped && !just_wrote)
-			rbuf_insert(&rbuf, key);
-		just_flipped = FALSE;
-		just_wrote = FALSE;
+		process_longpress(key);
 	}
 	return 0;
 } /* void main() */
@@ -745,6 +708,62 @@ uint8_t getkey(void)
 }
 
 #else	// We're using a 13-key keypad
+
+
+#if defined(KEYPAD_13) || defined(KEYPAD_13_REV)
+/*
+ * void process_longpress(uint8_t key)
+ *
+ * 13-key version
+ *
+ * A long press will do either of two things.  A long press on the 2600
+ * key will toggle the bluebox between normal and memory playback modes.
+ * A long press on any other key while in normal mode will save the last
+ * EEPROM_CHUNK_SIZE - 1 keystrokes to EEPROM (first byte is for mode).
+ * The only long press while in memory playback mode that is honored is
+ * 2600, which will toggle the bluebox back to normal mode.
+ *
+ */
+void process_longpress(uint8_t key)
+{
+	bool just_flipped = FALSE;
+	bool just_wrote = FALSE;
+
+	longpress_start();
+	while (key == getkey() && key != KEY_NOTHING) {
+		if (longpress_flag) {
+			/* Long press on 2600 toggles playback mode. */
+			if (key == KEY_SEIZE) {
+				// Clear buffer when toggling playback.
+				rbuf_init(&rbuf);
+				just_flipped = TRUE;
+				if (playback_mode == FALSE) {
+					playback_mode = TRUE;
+					play(75, 1300, 1300);
+					play(75, 1700, 1700);
+				} else {
+					playback_mode = FALSE;
+					play(75, 1700, 1700);
+					play(75, 1300, 1300);
+				}
+			} else { // Store the buffer in EEPROM.
+				if (!playback_mode) { // Don't store when in playback mode.
+					eeprom_store(key);
+					just_wrote = TRUE;
+				}
+			}
+		}
+	}
+	longpress_stop();
+	if (!playback_mode && !just_flipped && !just_wrote)
+		rbuf_insert(&rbuf, key);
+	just_flipped = FALSE;
+	just_wrote = FALSE;
+	return;
+}
+#else	// We're using a 16-key keypad
+#error 16-keys not yet implemented
+#endif
 
 /*
  * uint8_t getkey(void)
