@@ -36,16 +36,6 @@
  *
  */
 
-/*
- * One and only one of these must be uncommented.
- * The REV ones are for buttons mounted on the solder side.
- *
- */
-#define KEYPAD_13
-//#define KEYPAD_13_REV
-//#define KEYPAD_16
-//#define KEYPAD_13_REV
-
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>

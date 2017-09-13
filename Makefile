@@ -19,7 +19,14 @@ CFLAGS       = -I. -std=c99 -DDEBUG_LEVEL=0 -Wfatal-errors
 OBJECTS      = bluebox.o
 PROJECT      = bluebox
 
-COMPILE = $(AVR_CC) -Wall -Os -DF_CPU=$(F_CPU) -D$(DEVICE_DEF) $(CFLAGS) -mmcu=$(CC_DEVICE)
+# Select the type of keypad you're using.
+# One and only one of these must be selected.
+KEYPAD       = KEYPAD_13
+#KEYPAD       = KEYPAD_13_REV
+#KEYPAD       = KEYPAD_16
+#KEYPAD       = KEYPAD_16_REV
+
+COMPILE = $(AVR_CC) -Wall -Os -DF_CPU=$(F_CPU) -D$(KEYPAD) -D$(DEVICE_DEF) $(CFLAGS) -mmcu=$(CC_DEVICE)
 
 ##############################################################################
 # Fuse values for particular devices
