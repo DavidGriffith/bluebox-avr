@@ -141,6 +141,18 @@ do { \
 #define TONE_LENGTH_FAST	75
 #define TONE_LENGTH_SLOW	120
 
+#if defined(KEYPAD_13) || defined(KEYPAD_13_REV)
+#define KEYS_13
+#endif
+
+#if defined(KEYPAD_16) || defined(KEYPAD_16_REV)
+#define KEYS_16
+#endif
+
+#if defined(KEYS_13) && defined(KEYS_16)
+#error One and only one keypad may be selected.  Check the Makefile.
+#endif
+
 #define KEY_NOTHING	0
 #ifdef KEYPAD_13
 #define KEY_1		1
@@ -214,8 +226,6 @@ do { \
 #define KEY_HASH	14
 #define KEY_D		13
 #define KEY_SEIZE	90
-#else
-#error One and only one of the following must be defined: KEYPAD_13 KEYPAD_13_REV KEYPAD_16  KEYPAD_16_REV
 #endif
 
 #define DTMF_COL1	1209
@@ -349,7 +359,7 @@ int main(void)
 	}
 
 /* This chunk is relevant only for 13-key blueboxes. */
-#if defined(KEYPAD_13) || defined(KEYPAD_13_REV)
+#ifdef KEYS_13
 	key = getkey();		// What key is held on startup?
 
 	if (key == KEY_SEIZE) {	// We're setting a default mode
@@ -522,7 +532,7 @@ void process_key(uint8_t key)
 {
 	if (key == 0) return;
 
-#if defined(KEYPAD_13) || defined(KEYPAD_13_REV)
+#ifdef KEYS_13
 	// The 2600 key always plays 2600, so catch it here.
 	if (key == KEY_SEIZE) {
 		play(SEIZE_LENGTH, 2600, 2600);
@@ -689,7 +699,7 @@ void process_key(uint8_t key)
 } /* void process_key(uint8_t key) */
 
 
-#if defined(KEYPAD_13) || defined(KEYPAD_13_REV)
+#ifdef KEYS_13
 /*
  * void process_longpress(uint8_t key)
  *
@@ -745,7 +755,7 @@ void process_longpress(uint8_t key)
 #endif
 
 
-#if defined(KEYPAD_13) || defined(KEYPAD_13_REV)
+#ifdef KEYS_13
 /*
  * uint8_t getkey(void)
  *
