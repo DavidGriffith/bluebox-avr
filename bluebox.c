@@ -282,7 +282,7 @@ void  init_ports(void);
 void  init_settings(void);
 void  init_adc(void);
 uint8_t getkey(void);
-void  process(uint8_t);
+void  process_key(uint8_t);
 void  process_longpress(uint8_t);
 void  play(uint32_t, uint32_t, uint32_t);
 void  pulse(uint8_t);
@@ -413,11 +413,11 @@ int main(void)
 		if (playback_mode) {
 			rbuf_init(&rbuf);
 			if (key == KEY_SEIZE)
-				process(key);
+				process_key(key);
 			else
 				eeprom_playback(key);
 		} else
-			process(key);
+			process_key(key);
 
 		// Wait for release or long-press
 		longpress_start();
@@ -526,7 +526,7 @@ void eeprom_playback(uint8_t key)
 
 	for (i = 1; i < EEPROM_CHUNK_SIZE; i++) {
 		if (mem[i] == 0xff) break;
-		process(mem[i]);
+		process_key(mem[i]);
 	}
 	tone_mode = tone_mode_temp;
 	return;
@@ -560,12 +560,12 @@ uint16_t key2chunk(uint8_t key)
 
 
 /*
- * void process(uint8_t key)
+ * void process_key(uint8_t key)
  *
  * Process regular keystroke
  *
  */
-void process(uint8_t key)
+void process_key(uint8_t key)
 {
 	if (key == 0) return;
 
@@ -733,7 +733,7 @@ void process(uint8_t key)
 		}
 		sleep_ms(PULSE_PAUSE);
 	}
-} /* void process(uint8_t key) */
+} /* void process_key(uint8_t key) */
 
 
 #if defined(KEYPAD_16) || defined(KEYPAD_16_REV)
