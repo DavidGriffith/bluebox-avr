@@ -556,14 +556,18 @@ void process_key(uint8_t key)
 		case KEY_STAR: play(KP_LENGTH, 1100, 1700); break;   // KP
 		case KEY_0:    play(tone_length, 1300, 1500); break;
 		case KEY_HASH: play(tone_length, 1500, 1700); break; // ST
+#ifdef KEYS_16
 		case KEY_A:    play(tone_length,  900, 1700); break; // Code 12
 		case KEY_B:    play(tone_length, 1300, 1700); break; // KP2
 		case KEY_C:    play(tone_length,  700, 1700); break; // Code 11
 		case KEY_D:    play(SEIZE_LENGTH, 2600, 2600); break; // Seize
+#endif
 		}
+#ifdef KEYS_16
 		if (key == KEY_D)
 			sleep_ms(SEIZE_PAUSE);
 		else
+#endif
 			sleep_ms(tone_length);
 	} else if (tone_mode == MODE_DTMF) {
 		switch (key) {
@@ -579,10 +583,12 @@ void process_key(uint8_t key)
 		case KEY_STAR: play(tone_length, DTMF_ROW4, DTMF_COL1); break;
 		case KEY_0:    play(tone_length, DTMF_ROW4, DTMF_COL2); break;
 		case KEY_HASH: play(tone_length, DTMF_ROW4, DTMF_COL3); break;
+#ifdef KEYS_16
 		case KEY_A:    play(tone_length, DTMF_ROW1, DTMF_COL4); break;
 		case KEY_B:    play(tone_length, DTMF_ROW2, DTMF_COL4); break;
 		case KEY_C:    play(tone_length, DTMF_ROW3, DTMF_COL4); break;
 		case KEY_D:    play(tone_length, DTMF_ROW4, DTMF_COL4); break;
+#endif
 		}
 		sleep_ms(tone_length);
 	} else if (tone_mode == MODE_REDBOX) {
