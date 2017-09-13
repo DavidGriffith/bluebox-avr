@@ -288,8 +288,6 @@ void  tick(void);
 static uint8_t millisec_counter = OVERFLOW_PER_MILLISEC;
 static volatile uint8_t millisec_flag = FALSE;
 
-void longpress_start(void);
-void longpress_stop(void);
 static uint16_t	longpress_counter;
 static uint8_t	longpress_on = FALSE;
 static volatile uint8_t longpress_flag = FALSE;
@@ -724,7 +722,9 @@ void process_longpress(uint8_t key)
 	bool just_flipped = FALSE;
 	bool just_wrote = FALSE;
 
-	longpress_start();
+	longpress_counter = LONGPRESS_TIME;
+	longpress_on = TRUE;
+
 	while (key == getkey() && key != KEY_NOTHING) {
 		if (longpress_flag) {
 			/* Long press on 2600 toggles playback mode. */
@@ -749,7 +749,8 @@ void process_longpress(uint8_t key)
 			}
 		}
 	}
-	longpress_stop();
+	longpress_on = FALSE;
+
 	if (!playback_mode && !just_flipped && !just_wrote)
 		rbuf_insert(&rbuf, key);
 	just_flipped = FALSE;
@@ -833,26 +834,6 @@ uint8_t getkey(void)
 #else	// We're using a 16-key keypad
 #error 16-keys not yet implemented
 #endif
-
-
-/*
- * Turn on the long-press millisecond counter
- *
- */
-void longpress_start(void)
-{
-	longpress_counter = LONGPRESS_TIME;
-	longpress_on = TRUE;
-}
-
-/*
- * Turn off the long-press millisecond counter
- *
- */
-void longpress_stop(void)
-{
-	longpress_on = FALSE;
-}
 
 
 void init_ports(void)
