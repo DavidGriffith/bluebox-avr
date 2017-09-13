@@ -741,8 +741,9 @@ void process_longpress(uint8_t key)
 					play(75, 1700, 1700);
 					play(75, 1300, 1300);
 				}
-			} else { // Store the buffer in EEPROM.
-				if (!playback_mode) { // Don't store when in playback mode.
+			} else { // Store the buffer in EEPROM,
+				 // but don't store when in playback mode.
+				if (!playback_mode) {
 					eeprom_store(key);
 					just_wrote = TRUE;
 				}
