@@ -727,7 +727,7 @@ void process_longpress(uint8_t key)
 
 	while (key == getkey() && key != KEY_NOTHING) {
 		if (longpress_flag) {
-			/* Long press on 2600 toggles playback mode. */
+			// Long press on 2600 toggles playback mode.
 			if (key == KEY_SEIZE) {
 				// Clear buffer when toggling playback.
 				rbuf_init(&rbuf);
@@ -752,6 +752,8 @@ void process_longpress(uint8_t key)
 	}
 	longpress_on = FALSE;
 
+	// If a long press was not detected,
+	// store the key in the circular buffer.
 	if (!playback_mode && !just_flipped && !just_wrote)
 		rbuf_insert(&rbuf, key);
 	just_flipped = FALSE;
