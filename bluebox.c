@@ -562,11 +562,11 @@ void process_key(uint8_t key)
 #endif
 		}
 #ifdef KEYS_16
-		if (key == KEY_D)
+		if (key == KEY_D && playback_mode)
 			sleep_ms(SEIZE_PAUSE);
 		else
 #endif
-			sleep_ms(tone_length);
+			if (playback_mode) sleep_ms(tone_length);
 	} else if (tone_mode == MODE_DTMF) {
 		switch (key) {
 		case KEY_1:    play(tone_length, DTMF_ROW1, DTMF_COL1); break;
@@ -588,7 +588,7 @@ void process_key(uint8_t key)
 		case KEY_D:    play(tone_length, DTMF_ROW4, DTMF_COL4); break;
 #endif
 		}
-		sleep_ms(tone_length);
+		if (playback_mode) sleep_ms(tone_length);
 	} else if (tone_mode == MODE_REDBOX) {
 		switch (key) {
 		case KEY_1: play(66, 1700, 2200);	// US Nickel
@@ -630,7 +630,7 @@ void process_key(uint8_t key)
 		case KEY_8: play(350, 1000, 1000);  	// UK 50 pence
 			break;
 		}
-		sleep_ms(REDBOX_PAUSE);
+		if (playback_mode) sleep_ms(REDBOX_PAUSE);
 	} else if (tone_mode == MODE_GREENBOX) {
 		switch(key) {
 		// Using 2600 wink
@@ -684,7 +684,7 @@ void process_key(uint8_t key)
 			play(700, 1500, 1700);
 			break;
 		}
-		sleep_ms(GREENBOX_PAUSE);
+		if (playback_mode) sleep_ms(GREENBOX_PAUSE);
 	} else if (tone_mode == MODE_PULSE) {
 		switch (key) {
 		case KEY_1: pulse(1); break;
@@ -698,7 +698,7 @@ void process_key(uint8_t key)
 		case KEY_9: pulse(9); break;
 		case KEY_0: pulse(10); break;
 		}
-		sleep_ms(PULSE_PAUSE);
+		if (playback_mode) sleep_ms(PULSE_PAUSE);
 	}
 } /* void process_key(uint8_t key) */
 
@@ -939,7 +939,6 @@ void pulse(uint8_t count)
 		play(66, 2600, 2600);
 		sleep_ms(34);
 	}
-	sleep_ms(500);
 }
 
 
