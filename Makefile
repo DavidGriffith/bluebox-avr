@@ -12,7 +12,7 @@ PROG_DEVICE  = t85
 DEVICE_DEF   = __AVR_ATtiny85__
 F_CPU        = 20000000UL	# in Hz
 FUSE_L       = 0xFF
-FUSE_H       = 0xDF
+FUSE_H       = 0xDB
 ISP	     = usbtiny		# edit this line for your programmer
 AVRDUDE      = avrdude -c $(ISP) -p $(PROG_DEVICE)
 CFLAGS       = -I. -std=c99 -DDEBUG_LEVEL=0 -Wfatal-errors
