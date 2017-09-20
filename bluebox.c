@@ -323,7 +323,6 @@ int main(void)
 	uint8_t key;
 	bool	startup_set = FALSE;
 
-
 	init_ports();
 	init_adc();
 
@@ -422,7 +421,8 @@ int main(void)
 /*
  * void eeprom_store(uint8_t key)
  *
- * Unload the ring buffer into a linear buffer for writing to EEPROM.
+ * Unload the ring buffer into a linear buffer and then write the linear
+ * buffer into EEPROM.
  *
  */
 void eeprom_store(uint8_t key)
@@ -456,9 +456,6 @@ void eeprom_store(uint8_t key)
  * Set the tone mode to the one specified by the first byte of the chunk.
  * Then play back the rest of the keys until we reach the end of the
  * chunk or hit 0xFF, which indicates the end of the sequence.
- *
- * When playing back 2600, we have a special pause there to wait for the
- * winkback before proceeding.
  *
  */
 void eeprom_playback(uint8_t key)
