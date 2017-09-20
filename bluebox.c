@@ -120,7 +120,7 @@ const unsigned char sine_table[] PROGMEM = {
 
 #define SINE_SAMPLES	255UL
 #define TICKS_PER_CYCLE	256UL
-#define SINE_MIDPOINT	0x7F	// After decoupling, this is 0V of the sine
+#define SINE_MIDPOINT	0x3F	// After decoupling, this is 0V of the sine
 #define STEP_SHIFT	6
 #define SAMPLES_PER_HERTZ_TIMES_256	(SINE_SAMPLES * (TICKS_PER_CYCLE << STEP_SHIFT)) / (F_CPU / 256)
 #define OVERFLOW_PER_MILLISEC (F_CPU / TICKS_PER_CYCLE / 1000)
