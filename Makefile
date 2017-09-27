@@ -72,14 +72,14 @@ COMPILE = $(AVR_CC) -Wall -Os -DF_CPU=$(F_CPU) -D$(KEYPAD) -D$(DEVICE_DEF) $(CFL
 #        +-------------------- RSTDISBL (reset pin is enabled)
 #
 ############################## ATTiny25/45/85 ###############################
-# ATMega*5 FUSE_L (Fuse low byte):
+# ATTiny*5 FUSE_L (Fuse low byte):
 # 0xef = 1 1 1 0   1 1 1 1
 #        ^ ^ \+/   \--+--/
 #        | |  |       +------- CKSEL 3..0 (clock selection -> crystal @ 12 MHz)
 #        | |  +--------------- SUT 1..0 (BOD enabled, fast rising power)
 #        | +------------------ CKOUT (clock output on CKOUT pin -> disabled)
 #        +-------------------- CKDIV8 (divide clock by 8 -> don't divide)
-# ATMega*5 FUSE_H (Fuse high byte):
+# ATTiny*5 FUSE_H (Fuse high byte):
 # 0xdd = 1 1 0 1   1 1 0 1
 #        ^ ^ ^ ^   ^ \-+-/
 #        | | | |   |   +------ BODLEVEL 2..0 (brownout trigger level -> 2.7V)
