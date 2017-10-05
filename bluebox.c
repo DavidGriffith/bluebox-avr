@@ -279,7 +279,7 @@ void  init_ports(void);
 void  init_settings(void);
 void  init_adc(void);
 uint8_t getkey(void);
-void  process_key(uint8_t);
+void  process_key(uint8_t, bool);
 void  process_longpress(uint8_t);
 void  play(uint32_t, uint32_t, uint32_t);
 void  pulse(uint8_t);
@@ -407,11 +407,11 @@ int main(void)
 		if (playback_mode) {
 			rbuf_init(&rbuf);
 			if (key == KEY_SEIZE)
-				process_key(key);
+				process_key(key, FALSE);
 			else
 				eeprom_playback(key);
 		} else
-			process_key(key);
+			process_key(key, FALSE);
 
 		process_longpress(key);
 	}
@@ -485,7 +485,7 @@ void eeprom_playback(uint8_t key)
 
 	for (i = 1; i < EEPROM_CHUNK_SIZE; i++) {
 		if (mem[i] == 0xff) break;
-		process_key(mem[i]);
+		process_key(mem[i], TRUE);
 	}
 	tone_mode = tone_mode_temp;
 	return;
@@ -519,12 +519,14 @@ uint16_t key2chunk(uint8_t key)
 
 
 /*
- * void process_key(uint8_t key)
+ * void process_key(uint8_t key, bool pause)
  *
- * Process regular keystroke
+ * Process regular keystroke.
+ * Optionally add a pause after playing tone.
+ *
  *
  */
-void process_key(uint8_t key)
+void process_key(uint8_t key, bool pause)
 {
 	if (key == 0) return;
 
@@ -532,8 +534,7 @@ void process_key(uint8_t key)
 	// The 2600 key always plays 2600, so catch it here.
 	if (key == KEY_SEIZE) {
 		play(SEIZE_LENGTH, 2600, 2600);
-		if (playback_mode)
-			sleep_ms(SEIZE_PAUSE);
+		if (pause) sleep_ms(SEIZE_PAUSE);
 		return;
 	}
 #endif
@@ -560,11 +561,11 @@ void process_key(uint8_t key)
 #endif
 		}
 #ifdef KEYS_16
-		if (key == KEY_D && playback_mode)
+		if (key == KEY_D && pause)
 			sleep_ms(SEIZE_PAUSE);
 		else
 #endif
-			if (playback_mode) sleep_ms(tone_length);
+			if (pause) sleep_ms(tone_length);
 	} else if (tone_mode == MODE_DTMF) {
 		switch (key) {
 		case KEY_1:    play(tone_length, DTMF_ROW1, DTMF_COL1); break;
@@ -586,7 +587,7 @@ void process_key(uint8_t key)
 		case KEY_D:    play(tone_length, DTMF_ROW4, DTMF_COL4); break;
 #endif
 		}
-		if (playback_mode) sleep_ms(tone_length);
+		if (pause) sleep_ms(tone_length);
 	} else if (tone_mode == MODE_REDBOX) {
 		switch (key) {
 		case KEY_1: play(66, 1700, 2200);	// US Nickel
@@ -628,7 +629,7 @@ void process_key(uint8_t key)
 		case KEY_8: play(350, 1000, 1000);  	// UK 50 pence
 			break;
 		}
-		if (playback_mode) sleep_ms(REDBOX_PAUSE);
+		if (pause) sleep_ms(REDBOX_PAUSE);
 	} else if (tone_mode == MODE_GREENBOX) {
 		switch(key) {
 		// Using 2600 wink
@@ -682,7 +683,7 @@ void process_key(uint8_t key)
 			play(700, 1500, 1700);
 			break;
 		}
-		if (playback_mode) sleep_ms(GREENBOX_PAUSE);
+		if (pause) sleep_ms(GREENBOX_PAUSE);
 	} else if (tone_mode == MODE_PULSE) {
 		switch (key) {
 		case KEY_1: pulse(1); break;
@@ -696,7 +697,7 @@ void process_key(uint8_t key)
 		case KEY_9: pulse(9); break;
 		case KEY_0: pulse(10); break;
 		}
-		if (playback_mode) sleep_ms(PULSE_PAUSE);
+		if (pause) sleep_ms(PULSE_PAUSE);
 	}
 } /* void process_key(uint8_t key) */
 
