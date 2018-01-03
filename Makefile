@@ -111,12 +111,12 @@ COMPILE = $(AVR_CC) -Wall -Os -DF_CPU=$(F_CPU) -D$(KEYPAD) -D$(DEVICE_DEF) $(CFL
 # symbolic targets:
 help:
 	@echo "This Makefile has no default rule. Use one of the following:"
-	@echo "make hex ....... to build $(PROJECT).hex"
-	@echo "make program ... to flash fuses and firmware"
-	@echo "make eeprom ....  to extract EEPROM data from .elf file and program the device with it."
-	@echo "make fuse ...... to flash the fuses"
-	@echo "make flash ..... to flash the firmware (use this on metaboard)"
-	@echo "make clean ..... to delete objects and hex file"
+	@echo "make hex ........ to build $(PROJECT).hex"
+	@echo "make program .... to flash fuses and firmware"
+	@echo "make eeprom ..... to extract EEPROM data from .elf file and program the device with it."
+	@echo "make fuse ....... to flash the fuses"
+	@echo "make flash ...... to flash the firmware (use this on metaboard)"
+	@echo "make clean ...... to delete objects and hex file"
 
 hex: $(PROJECT).hex
 
