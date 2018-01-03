@@ -72,6 +72,7 @@ device.  Ladyada's USBtinyISP is inexpensive, easy to use, and will do
 the job nicely.
 
 Typing "make" will show you a list of build targets:
+
     This Makefile has no default rule. Use one of the following:
     make hex ........ to build bluebox.hex
     make program .... to flash fuses and firmware
