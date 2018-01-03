@@ -59,3 +59,14 @@ mode.  Two tones will then play to let you know that your desired mode
 has been saved to memory.  Similarly, you can toggle the tone length of 
 MF and DTMF tones between 75 milliseconds and 120 milliseconds by 
 holding the hash key (\#).
+
+
+Building and Installing
+-----------------------
+
+Building the bluebox firmware requires GCC-AVR, preferably in a Linux or 
+BSD environment.  To write the firmware to a completed board, you will 
+need AVRDUDE.  Both of these tools are usually available in Linux and 
+BSD software repositories.  You will also need an AVR programming 
+device.  Ladyada's USBtinyISP is inexpensive, easy to use, and will do 
+the job nicely.
