@@ -7,6 +7,9 @@ https://en.wikipedia.org/wiki/Blue_box) on AVR microcontrollers
 reimplementation of the PIC-based bluebox at 
 http://projectmf.org/bluebox.html.
 
+The hardware for this bluebox is found at
+https://github.com/DavidGriffith/bluebox-esquire
+
 
 Description
 -----------
