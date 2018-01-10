@@ -237,6 +237,20 @@ do { \
 #define DTMF_ROW3	852
 #define DTMF_ROW4	941
 
+#define MF1		700
+#define MF2		900
+#define MF3		1100
+#define MF4		1300
+#define MF5		1500
+#define MF6		1700
+
+#define RB1		1700
+#define RB2		2200
+
+#define UKBB		1000
+
+#define SEIZE		2600
+
 /* Number of milliseconds to make for a long press. */
 #define LONGPRESS_TIME	2000
 
@@ -265,7 +279,6 @@ do { \
  * I can't remember where I found that warning.
  */
 uint8_t ee_data[] EEMEM = {0xff, MODE_MF, TONE_LENGTH_FAST};
-
 
 uint8_t tone_mode;
 uint8_t tone_length;
@@ -533,7 +546,7 @@ void process_key(uint8_t key, bool pause)
 #ifdef KEYS_13
 	// The 2600 key always plays 2600, so catch it here.
 	if (key == KEY_SEIZE) {
-		play(SEIZE_LENGTH, 2600, 2600);
+		play(SEIZE_LENGTH, SEIZE, SEIZE);
 		if (pause) sleep_ms(SEIZE_PAUSE);
 		return;
 	}
@@ -541,23 +554,23 @@ void process_key(uint8_t key, bool pause)
 
 	if (tone_mode == MODE_MF) {
 		switch (key) {
-		case KEY_1:    play(tone_length, 700, 900); break;
-		case KEY_2:    play(tone_length, 700, 1100); break;
-		case KEY_3:    play(tone_length, 900, 1100); break;
-		case KEY_4:    play(tone_length, 700, 1300); break;
-		case KEY_5:    play(tone_length, 900, 1300); break;
-		case KEY_6:    play(tone_length, 1100, 1300); break;
-		case KEY_7:    play(tone_length, 700, 1500); break;
-		case KEY_8:    play(tone_length, 900, 1500); break;
-		case KEY_9:    play(tone_length, 1100, 1500); break;
-		case KEY_STAR: play(KP_LENGTH, 1100, 1700); break;   // KP
-		case KEY_0:    play(tone_length, 1300, 1500); break;
-		case KEY_HASH: play(tone_length, 1500, 1700); break; // ST
+		case KEY_1:    play(tone_length, MF1, MF2); break;
+		case KEY_2:    play(tone_length, MF1, MF3); break;
+		case KEY_3:    play(tone_length, MF2, MF3); break;
+		case KEY_4:    play(tone_length, MF1, MF4); break;
+		case KEY_5:    play(tone_length, MF2, MF4); break;
+		case KEY_6:    play(tone_length, MF3, MF4); break;
+		case KEY_7:    play(tone_length, MF1, MF5); break;
+		case KEY_8:    play(tone_length, MF2, MF5); break;
+		case KEY_9:    play(tone_length, MF3, MF5); break;
+		case KEY_STAR: play(KP_LENGTH, MF3, MF6); break;   // KP
+		case KEY_0:    play(tone_length, MF4, MF5); break;
+		case KEY_HASH: play(tone_length, MF5, MF6); break; // ST
 #ifdef KEYS_16
-		case KEY_A:    play(tone_length,  900, 1700); break; // Code 12
-		case KEY_B:    play(tone_length, 1300, 1700); break; // KP2
-		case KEY_C:    play(tone_length,  700, 1700); break; // Code 11
-		case KEY_D:    play(SEIZE_LENGTH, 2600, 2600); break; // Seize
+		case KEY_A:    play(tone_length,  MF2, MF6); break; // Code 12
+		case KEY_B:    play(tone_length, MF4, MF6); break; // KP2
+		case KEY_C:    play(tone_length,  MF1, MF6); break; // Code 11
+		case KEY_D:    play(SEIZE_LENGTH, SEIZE, SEIZE); break; // Seize
 #endif
 		}
 #ifdef KEYS_16
@@ -590,97 +603,97 @@ void process_key(uint8_t key, bool pause)
 		if (pause) sleep_ms(tone_length);
 	} else if (tone_mode == MODE_REDBOX) {
 		switch (key) {
-		case KEY_1: play(66, 1700, 2200);	// US Nickel
+		case KEY_1: play(66, RB1, RB2);	// US Nickel
 			break;
-		case KEY_2: play(66, 1700, 2200);	// US Dime
+		case KEY_2: play(66, RB1, RB2);	// US Dime
 			sleep_ms(66);
-			play(66, 1700, 2200);
+			play(66, RB1, RB2);
 			break;
-		case KEY_3: play(33, 1700, 2200);	// US Quarter
+		case KEY_3: play(33, RB1, RB2);	// US Quarter
 			sleep_ms(33);
-			play(33, 1700, 2200);
+			play(33, RB1, RB2);
 			sleep_ms(33);
-			play(33, 1700, 2200);
+			play(33, RB1, RB2);
 			sleep_ms(33);
-			play(33, 1700, 2200);
+			play(33, RB1, RB2);
 			sleep_ms(33);
-			play(33, 1700, 2200);
+			play(33, RB1, RB2);
 			break;
-		case KEY_4: play(60, 2200, 2200);	// Canada nickel
+		case KEY_4: play(60, RB2, RB2);	// Canada nickel
 			break;
-		case KEY_5: play(60, 2200, 2200);	// Canada dime
+		case KEY_5: play(60, RB2, RB2);	// Canada dime
 			sleep_ms(60);
-			play(60, 2200, 2200);
+			play(60, RB2, RB2);
 			sleep_ms(60);
 			break;
-		case KEY_6: play(33, 2200, 2200);	// Canada quarter
+		case KEY_6: play(33, RB2, RB2);	// Canada quarter
 			sleep_ms(33);
-			play(33, 2200, 2200);
+			play(33, RB2, RB2);
 			sleep_ms(33);
-			play(33, 2200, 2200);
+			play(33, RB2, RB2);
 			sleep_ms(33);
-			play(33, 2200, 2200);
+			play(33, RB2, RB2);
 			sleep_ms(33);
-			play(33, 2200, 2200);
+			play(33, RB2, RB2);
 			sleep_ms(33);
 			break;
-		case KEY_7: play(200, 1000, 1000);	// UK 10 pence
+		case KEY_7: play(200, UKBB, UKBB);	// UK 10 pence
 			break;
-		case KEY_8: play(350, 1000, 1000);  	// UK 50 pence
+		case KEY_8: play(350, UKBB, UKBB);  	// UK 50 pence
 			break;
 		}
 		if (pause) sleep_ms(REDBOX_PAUSE);
 	} else if (tone_mode == MODE_GREENBOX) {
 		switch(key) {
 		// Using 2600 wink
-		case KEY_1: play(90, 2600, 2600);	// Coin collect
+		case KEY_1: play(90, SEIZE, SEIZE);	// Coin collect
 			sleep_ms(60);
-			play(900, 700, 1100);
+			play(900, MF1, MF3);
 			break;
-		case KEY_2: play(90, 2600, 2600);	// Coin return
+		case KEY_2: play(90, SEIZE, SEIZE);	// Coin return
 			sleep_ms(60);
-			play(900, 1100, 1700);
+			play(900, MF3, MF6);
 			break;
-		case KEY_3: play(90, 2600, 2600);	// Ringback
+		case KEY_3: play(90, SEIZE, SEIZE);	// Ringback
 			sleep_ms(60);
-			play(900, 700, 1700);
+			play(900, MF1, MF6);
 			break;
-		case KEY_4: play(90, 2600, 2600);	// Operator attached
+		case KEY_4: play(90, SEIZE, SEIZE);	// Operator attached
 			sleep_ms(60);
-			play(700, 1300, 1500);
+			play(700, MF4, MF5);
 			break;
-		case KEY_5: play(90, 2600, 2600);	// Operator released
+		case KEY_5: play(90, SEIZE, SEIZE);	// Operator released
 			sleep_ms(60);
-			play(700, 900, 1500);
+			play(700, MF2, MF5);
 			break;
-		case KEY_6: play(90, 2600, 2600);	// Operator release
+		case KEY_6: play(90, SEIZE, SEIZE);	// Operator release
 			sleep_ms(60);			// and coin collect
-			play(700, 1500, 1700);
+			play(700, MF5, MF6);
 			break;
 		// With MF "8" (900 Hz + 1500 Hz) wink
-		case KEY_7: play(90, 900, 1500);	// Coin collect
+		case KEY_7: play(90, MF2, MF5);		// Coin collect
 			sleep_ms(60);
-			play(900, 700, 1100);
+			play(900, MF1, MF3);
 			break;
-		case KEY_8: play(90, 900, 1500);	// Coin return
+		case KEY_8: play(90, MF2, MF5);		// Coin return
 			sleep_ms(60);
-			play(900, 1100, 1700);
+			play(900, MF3, MF6);
 			break;
-		case KEY_9: play(90, 900, 1500);	// Ringback
+		case KEY_9: play(90, MF2, MF5);	// Ringback
 			sleep_ms(60);
-			play(900, 700, 1700);
+			play(900, MF1, MF6);
 			break;
-		case KEY_STAR: play(90, 900, 1500);	// Operator attached
+		case KEY_STAR: play(90, MF2, MF5);	// Operator attached
 			sleep_ms(60);
-			play(700, 1300, 1500);
+			play(700, MF3, MF5);
 			break;
-		case KEY_0: play(90, 900, 1500);	// Operator released
+		case KEY_0: play(90, MF2, MF5);	// Operator released
 			sleep_ms(60);
-			play(700, 900, 1500);
+			play(700, MF2, MF5);
 			break;
-		case KEY_HASH: play(90, 900, 1500);	// Operator release
+		case KEY_HASH: play(90, MF2, MF5);	// Operator release
 			sleep_ms(60);			// and coin collect
-			play(700, 1500, 1700);
+			play(700, MF5, MF6);
 			break;
 		}
 		if (pause) sleep_ms(GREENBOX_PAUSE);
@@ -937,7 +950,7 @@ void pulse(uint8_t count)
 	uint8_t	i;
 
 	for (i = 0; i < count; i++) {
-		play(66, 2600, 2600);
+		play(66, SEIZE, SEIZE);
 		sleep_ms(34);
 	}
 }
