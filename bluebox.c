@@ -5,7 +5,7 @@
  * License:	GNU GPL v3
  * Version:	0
  *
- * Fuse Settings:	L:FF H:DF
+ * Fuse Settings:	L:FF H:DB
  *
  * This program implements a bluebox, DTMF dialer, redbox, greenbox, and
  * 2600 pulse dialer with PWM synthesis on an AVR ATtiny85 8-pin
