@@ -247,7 +247,7 @@ do { \
 #define RB1		1700
 #define RB2		2200
 
-#define UKBB		1000
+#define UKRB		1000
 
 #define SEIZE		2600
 
@@ -637,9 +637,9 @@ void process_key(uint8_t key, bool pause)
 			play(33, RB2, RB2);
 			sleep_ms(33);
 			break;
-		case KEY_7: play(200, UKBB, UKBB);	// UK 10 pence
+		case KEY_7: play(200, UKRB, UKRB);	// UK 10 pence
 			break;
-		case KEY_8: play(350, UKBB, UKBB);  	// UK 50 pence
+		case KEY_8: play(350, UKRB, UKRB);  	// UK 50 pence
 			break;
 		}
 		if (pause) sleep_ms(REDBOX_PAUSE);
