@@ -228,28 +228,31 @@ do { \
 #define KEY_SEIZE	90
 #endif
 
-#define DTMF_COL1	1209
-#define DTMF_COL2	1336
-#define DTMF_COL3	1477
-#define DTMF_COL4	1633
-#define DTMF_ROW1	697
-#define DTMF_ROW2	770
-#define DTMF_ROW3	852
-#define DTMF_ROW4	941
+#define MULT1		0.99
+#define MULT2		1.01
 
-#define MF1		700
-#define MF2		900
-#define MF3		1100
-#define MF4		1300
-#define MF5		1500
-#define MF6		1700
+#define DTMF_COL1	1209	* MULT2
+#define DTMF_COL2	1336	* MULT2
+#define DTMF_COL3	1477	* MULT2
+#define DTMF_COL4	1633	* MULT2
+#define DTMF_ROW1	697	* MULT1
+#define DTMF_ROW2	770	* MULT2
+#define DTMF_ROW3	852	* MULT2
+#define DTMF_ROW4	941	* MULT2
 
-#define RB1		1700
-#define RB2		2200
+#define MF1		700	* MULT1
+#define MF2		900	* MULT2
+#define MF3		1100	* MULT2
+#define MF4		1300	* MULT2
+#define MF5		1500	* MULT2
+#define MF6		1700	* MULT2
 
-#define UKRB		1000
+#define RB1		1700	* MULT2
+#define RB2		2200	* MULT2
 
-#define SEIZE		2600
+#define UKRB		1000	* MULT2
+
+#define SEIZE		2600	* MULT2
 
 /* Number of milliseconds to make for a long press. */
 #define LONGPRESS_TIME	2000
