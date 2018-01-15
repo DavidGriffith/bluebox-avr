@@ -228,8 +228,8 @@ do { \
 #define KEY_SEIZE	90
 #endif
 
-#define MULT1		0.99
-#define MULT2		1.01
+#define MULT1		0.9999			/* Adjust 697hz and 700hz */
+#define MULT2		1.01			/* Adjust 770hz to 2600hz */
 
 #define DTMF_COL1	1209	* MULT2
 #define DTMF_COL2	1336	* MULT2
@@ -281,7 +281,7 @@ do { \
  * zeroth byte.  Then came across a warning from Atmel not to do that.
  * I can't remember where I found that warning.
  */
-uint8_t ee_data[] EEMEM = {0xff, MODE_MF, TONE_LENGTH_FAST};
+uint8_t ee_data[] EEMEM = {0xff, MODE_DTMF, TONE_LENGTH_SLOW};
 
 uint8_t tone_mode;
 uint8_t tone_length;
