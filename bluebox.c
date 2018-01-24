@@ -10,20 +10,21 @@
  * This program implements a bluebox, DTMF dialer, redbox, greenbox, and
  * 2600 pulse dialer with PWM synthesis on an AVR ATtiny85 8-pin
  * microcontroller.  A single pin detects 13 buttons through an ADC
- * using a resistor ladder.  There are 12 memory slots of up to 32 tones
- * each.  Defaults are configurable.
+ * using a resistor ladder.  There are 12 memory slots of up to 40 tones
+ * each.  Power-on defaults are configurable.
  *
- * This is a rough translation / reimplementation / expansion of Don Froula's
- * PicBasicPro program for implementing a bluebox on a PIC12F683 8-pin
- * microcontroller.  See http://projectmf.org/ for more information on
- * this, for information on VOIP servers modified to accept MF tones
- * and how to make your server do the same.
+ * This program was directly inspired by Don Froula's PicBasicPro program
+ * for implementing a bluebox on a PIC12F683 8-pin microcontroller.  No code
+ * was reused from that program because of the wide differences between
+ * PicBasicPro and C.
+ * See http://projectmf.org/bluebox.html for more information on this.
  *
  * For all you naysayers, this program and the hardware on which it runs
  * are perfectly legal now.  The modern commercial switching offices have
  * long ago made blueboxing and redboxing impossible on the public phone
  * networks.  You can still do it on private networks specifically
- * programmed to allow for this kind of thing.
+ * set up to allow for this kind of thing.  Information on this can be
+ * found at http://projectmf.org/.
  *
  * Resistor network detection values assume a network of fourteen (for
  * 13-key keypad) or seventeen (for 16-key keypad) 1K ohm
