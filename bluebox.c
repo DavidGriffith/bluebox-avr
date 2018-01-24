@@ -413,15 +413,24 @@ int main(void)
 	while (key == getkey());	// Wait for release
 #endif
 
-	/* Main Loop */
+	/* Main Loop
+	 *
+	 * Get the next keystroke.
+	 * The 2600 key in a 13-key device always plays 2600Hz no matter if
+	 *   we're in normal or playback modes.
+	 * If we're in playback mode, play the sequence corresponding to
+	 *   that key.
+	 * Otherwise, play the tone for that key.
+	 * Then check to see if the key is being held down for saving
+	 *   sequences or toggling between normal and playback modes.
+	 *
+	 */
 	while (TRUE) {
+		do {	/* Get the next keystroke. */
+			key = getkey();
+		} while (key == KEY_NOTHING);
 
-		do { key = getkey(); }
-		while (key == KEY_NOTHING);
-
-// FIXME WTF is going on in this block???
 		if (playback_mode) {
-			rbuf_init(&rbuf);
 			if (key == KEY_SEIZE)
 				process_key(key, FALSE);
 			else
