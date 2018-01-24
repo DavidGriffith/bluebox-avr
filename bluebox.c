@@ -108,8 +108,8 @@ const unsigned char sine_table[] PROGMEM = {
 #define MODE_REDBOX	0x02
 #define MODE_GREENBOX	0x03
 #define MODE_PULSE	0x04
-#define MODE_MAX	MODE_PULSE
 #define MODE_MIN	MODE_MF
+#define MODE_MAX	MODE_PULSE
 
 #define SEIZE_LENGTH	1000
 #define SEIZE_PAUSE	1500
