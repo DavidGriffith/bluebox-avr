@@ -71,8 +71,8 @@ Building the bluebox firmware requires GCC-AVR, preferably in a Linux or
 BSD environment.  To write the firmware to a completed board, you will 
 need AVRDUDE.  Both of these tools are usually available in Linux and 
 BSD software repositories.  You will also need an AVR programming 
-device.  Ladyada's USBtinyISP is inexpensive, easy to use, and will do 
-the job nicely.
+device.  Ladyada's USBtinyISP (https://www.adafruit.com/product/46) is 
+inexpensive, easy to use, and will do the job nicely.
 
 Typing "make" will show you a list of build targets:
 
