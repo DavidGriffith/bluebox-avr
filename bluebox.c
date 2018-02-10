@@ -121,7 +121,7 @@ const unsigned char sine_table[] PROGMEM = {
 
 #define SINE_SAMPLES	255UL
 #define TICKS_PER_CYCLE	256UL
-#define SINE_MIDPOINT	0x80	// After decoupling, this is 0V of the sine
+#define SINE_MIDPOINT	0x80	/* After decoupling, this is 0V of the sine. */
 #define STEP_SHIFT	6
 #define SAMPLES_PER_HERTZ_TIMES_256	(SINE_SAMPLES * (TICKS_PER_CYCLE << STEP_SHIFT)) / (F_CPU / 256)
 #define OVERFLOW_PER_MILLISEC (F_CPU / TICKS_PER_CYCLE / 1000)
@@ -346,17 +346,20 @@ int main(void)
 
 	rbuf_init(&rbuf);
 
-	// Start TIMER0
-	// The timer is counting from 0 to 255 -- 256 values.
-	// The prescaler is 1.  Therefore our PWM frequency is F_CPU / 256.
+	/*
+	 * Start TIMER0
+	 * The timer is counting from 0 to 255 -- 256 values.
+	 * The prescaler is 1.  Therefore our PWM frequency is F_CPU / 256.
+	 */
 	TIMER0_ON(TIMER0_PRESCALE_1);
 
-	// Read setup bytes
+	/* Read setup bytes. */
 	tone_mode   = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE);
 	tone_length = eeprom_read_byte(( uint8_t *)EEPROM_STARTUP_TONE_LENGTH);
 
-	// If our startup mode is bogus, set something sensible
-	// and make noise to let the user know something's wrong.
+	/* If our startup mode is bogus, set something sensible
+	 * and make noise to let the user know something's wrong.
+	 */
 	if (tone_mode < MODE_MIN || tone_mode > MODE_MAX) {
 		tone_mode = MODE_MIN;
 		for (key = 0; key < 4; key++) {
@@ -375,13 +378,13 @@ int main(void)
 
 /* This chunk is relevant only for 13-key blueboxes. */
 #ifdef KEYS_13
-	key = getkey();		// What key is held on startup?
+	key = getkey();		/* What key is held on startup? */
 
-	if (key == KEY_SEIZE) {	// We're setting a default mode
+	if (key == KEY_SEIZE) {	/* We're setting a default mode. */
 		startup_set = TRUE;
 		play(1000, 1700, 1700);
-		while (key == getkey());	// Wait for release
-		do {				// Get the next keystroke
+		while (key == getkey());	/* Wait for release. */
+		do {				/* Get the next keystroke. */
 			key = getkey();
 		} while (key == KEY_NOTHING);
 	}
@@ -411,10 +414,11 @@ int main(void)
 		if (key > KEY_NOTHING) play(1000, 1700, 1700);
 	}
 
-	while (key == getkey());	// Wait for release
+	while (key == getkey());	/* Wait for release. */
 #endif
 
-	/* Main Loop
+	/*
+	 * Main Loop
 	 *
 	 * Get the next keystroke.
 	 * If we're in playback mode, play the sequence corresponding to
@@ -505,7 +509,7 @@ void eeprom_playback(uint8_t key)
 
 	eeprom_read_block((uint8_t *)mem, (void *)chunk, EEPROM_CHUNK_SIZE);
 
-	// Abort if this chunk doesn't start with a valid mode.
+	/* Abort if this chunk doesn't start with a valid mode. */
 	if (mem[0] < MODE_MIN || mem[0] > MODE_MAX)
 		return;
 
@@ -553,14 +557,13 @@ uint16_t key2chunk(uint8_t key)
  * Process regular keystroke.
  * Optionally add a pause after playing tone.
  *
- *
  */
 void process_key(uint8_t key, bool pause)
 {
 	if (key == 0) return;
 
 #ifdef KEYS_13
-	// The 2600 key always plays 2600, so catch it here.
+	/* The 2600 key always plays 2600, so catch it here. */
 	if (key == KEY_SEIZE) {
 		play(SEIZE_LENGTH, SEIZE, SEIZE);
 		if (pause) sleep_ms(SEIZE_PAUSE);
@@ -579,14 +582,14 @@ void process_key(uint8_t key, bool pause)
 		case KEY_7:    play(tone_length, MF1, MF5); break;
 		case KEY_8:    play(tone_length, MF2, MF5); break;
 		case KEY_9:    play(tone_length, MF3, MF5); break;
-		case KEY_STAR: play(KP_LENGTH, MF3, MF6); break;   // KP
+		case KEY_STAR: play(KP_LENGTH, MF3, MF6); break;   /* KP */
 		case KEY_0:    play(tone_length, MF4, MF5); break;
-		case KEY_HASH: play(tone_length, MF5, MF6); break; // ST
+		case KEY_HASH: play(tone_length, MF5, MF6); break; /* ST */
 #ifdef KEYS_16
-		case KEY_A:    play(tone_length,  MF2, MF6); break; // Code 12
-		case KEY_B:    play(tone_length, MF4, MF6); break; // KP2
-		case KEY_C:    play(tone_length,  MF1, MF6); break; // Code 11
-		case KEY_D:    play(SEIZE_LENGTH, SEIZE, SEIZE); break; // Seize
+		case KEY_A:    play(tone_length,  MF2, MF6); break; /* Code 12 */
+		case KEY_B:    play(tone_length, MF4, MF6); break; /* KP2 */
+		case KEY_C:    play(tone_length,  MF1, MF6); break; /* Code 11 */
+		case KEY_D:    play(SEIZE_LENGTH, SEIZE, SEIZE); break; /* Seize */
 #endif
 		}
 #ifdef KEYS_16
@@ -619,13 +622,13 @@ void process_key(uint8_t key, bool pause)
 		if (pause) sleep_ms(tone_length);
 	} else if (tone_mode == MODE_REDBOX) {
 		switch (key) {
-		case KEY_1: play(66, RB1, RB2);	// US Nickel
+		case KEY_1: play(66, RB1, RB2);	/* US Nickel */
 			break;
-		case KEY_2: play(66, RB1, RB2);	// US Dime
+		case KEY_2: play(66, RB1, RB2);	/* US Dime */
 			sleep_ms(66);
 			play(66, RB1, RB2);
 			break;
-		case KEY_3: play(33, RB1, RB2);	// US Quarter
+		case KEY_3: play(33, RB1, RB2);	/* US Quarter */
 			sleep_ms(33);
 			play(33, RB1, RB2);
 			sleep_ms(33);
@@ -635,14 +638,14 @@ void process_key(uint8_t key, bool pause)
 			sleep_ms(33);
 			play(33, RB1, RB2);
 			break;
-		case KEY_4: play(60, RB2, RB2);	// Canada nickel
+		case KEY_4: play(60, RB2, RB2);	/* Canada nickel */
 			break;
-		case KEY_5: play(60, RB2, RB2);	// Canada dime
+		case KEY_5: play(60, RB2, RB2);	/* Canada dime */
 			sleep_ms(60);
 			play(60, RB2, RB2);
 			sleep_ms(60);
 			break;
-		case KEY_6: play(33, RB2, RB2);	// Canada quarter
+		case KEY_6: play(33, RB2, RB2);	/* Canada quarter */
 			sleep_ms(33);
 			play(33, RB2, RB2);
 			sleep_ms(33);
@@ -653,62 +656,62 @@ void process_key(uint8_t key, bool pause)
 			play(33, RB2, RB2);
 			sleep_ms(33);
 			break;
-		case KEY_7: play(200, UKRB, UKRB);	// UK 10 pence
+		case KEY_7: play(200, UKRB, UKRB);	/* UK 10 pence */
 			break;
-		case KEY_8: play(350, UKRB, UKRB);  	// UK 50 pence
+		case KEY_8: play(350, UKRB, UKRB);  	/* UK 50 pence */
 			break;
 		}
 		if (pause) sleep_ms(REDBOX_PAUSE);
 	} else if (tone_mode == MODE_GREENBOX) {
 		switch(key) {
-		// Using 2600 wink
-		case KEY_1: play(90, SEIZE, SEIZE);	// Coin collect
+		/* Using 2600 wink */
+		case KEY_1: play(90, SEIZE, SEIZE);	/* Coin collect */
 			sleep_ms(60);
 			play(900, MF1, MF3);
 			break;
-		case KEY_2: play(90, SEIZE, SEIZE);	// Coin return
+		case KEY_2: play(90, SEIZE, SEIZE);	/* Coin return */
 			sleep_ms(60);
 			play(900, MF3, MF6);
 			break;
-		case KEY_3: play(90, SEIZE, SEIZE);	// Ringback
+		case KEY_3: play(90, SEIZE, SEIZE);	/* Ringback */
 			sleep_ms(60);
 			play(900, MF1, MF6);
 			break;
-		case KEY_4: play(90, SEIZE, SEIZE);	// Operator attached
+		case KEY_4: play(90, SEIZE, SEIZE);	/* Operator attached */
 			sleep_ms(60);
 			play(700, MF4, MF5);
 			break;
-		case KEY_5: play(90, SEIZE, SEIZE);	// Operator released
+		case KEY_5: play(90, SEIZE, SEIZE);	/* Operator released */
 			sleep_ms(60);
 			play(700, MF2, MF5);
 			break;
-		case KEY_6: play(90, SEIZE, SEIZE);	// Operator release
-			sleep_ms(60);			// and coin collect
+		case KEY_6: play(90, SEIZE, SEIZE);	/* Operator release */
+			sleep_ms(60);			/* and coin collect */
 			play(700, MF5, MF6);
 			break;
-		// With MF "8" (900 Hz + 1500 Hz) wink
-		case KEY_7: play(90, MF2, MF5);		// Coin collect
+		/* With MF "8" (900 Hz + 1500 Hz) wink */
+		case KEY_7: play(90, MF2, MF5);		/* Coin collect */
 			sleep_ms(60);
 			play(900, MF1, MF3);
 			break;
-		case KEY_8: play(90, MF2, MF5);		// Coin return
+		case KEY_8: play(90, MF2, MF5);		/* Coin return */
 			sleep_ms(60);
 			play(900, MF3, MF6);
 			break;
-		case KEY_9: play(90, MF2, MF5);	// Ringback
+		case KEY_9: play(90, MF2, MF5);		/* Ringback */
 			sleep_ms(60);
 			play(900, MF1, MF6);
 			break;
-		case KEY_STAR: play(90, MF2, MF5);	// Operator attached
+		case KEY_STAR: play(90, MF2, MF5);	/* Operator attached */
 			sleep_ms(60);
 			play(700, MF3, MF5);
 			break;
-		case KEY_0: play(90, MF2, MF5);	// Operator released
+		case KEY_0: play(90, MF2, MF5);		/* Operator released */
 			sleep_ms(60);
 			play(700, MF2, MF5);
 			break;
-		case KEY_HASH: play(90, MF2, MF5);	// Operator release
-			sleep_ms(60);			// and coin collect
+		case KEY_HASH: play(90, MF2, MF5);	/* Operator release */
+			sleep_ms(60);			/* and coin collect */
 			play(700, MF5, MF6);
 			break;
 		}
@@ -755,9 +758,9 @@ void process_longpress(uint8_t key)
 
 	while (key == getkey() && key != KEY_NOTHING) {
 		if (longpress_flag) {
-			// Long press on 2600 toggles playback mode.
+			/* Long press on 2600 toggles playback mode. */
 			if (key == KEY_SEIZE) {
-				// Clear buffer when toggling playback.
+				/* Clear buffer when toggling playback. */
 				rbuf_init(&rbuf);
 				just_flipped = TRUE;
 				if (playback_mode == FALSE) {
@@ -769,8 +772,8 @@ void process_longpress(uint8_t key)
 					play(75, 1700, 1700);
 					play(75, 1300, 1300);
 				}
-			} else { // Store the buffer in EEPROM,
-				 // but don't store when in playback mode.
+			} else { /* Store the buffer in EEPROM, */
+				 /* but don't store when in playback mode. */
 				if (!playback_mode) {
 					eeprom_store(key);
 					just_wrote = TRUE;
@@ -780,15 +783,15 @@ void process_longpress(uint8_t key)
 	}
 	longpress_on = FALSE;
 
-	// If a long press was not detected,
-	// store the key in the circular buffer.
+	/* If a long press was not detected, */
+	/* store the key in the circular buffer.*/
 	if (!playback_mode && !just_flipped && !just_wrote)
 		rbuf_insert(&rbuf, key);
 	just_flipped = FALSE;
 	just_wrote = FALSE;
 	return;
 }
-#else	// We're using a 16-key keypad
+#else	/* We're using a 16-key keypad */
 #error 16-keys not yet implemented
 #endif
 
@@ -818,60 +821,63 @@ uint8_t getkey(void)
 {
 	uint8_t voltage;
 	while (1) {
-		ADCSRA |= (1 << ADSC);		// start ADC measurement
-		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
-		sleep_ms(DEBOUNCE_TIME);	// delay for debounce
+		ADCSRA |= (1 << ADSC);		/* start ADC measurement */
+		while (ADCSRA & (1 << ADSC) );	/* wait till conversion complete */
+		sleep_ms(DEBOUNCE_TIME);	/* delay for debounce */
 		voltage = ADCH;
-		ADCSRA |= (1 << ADSC);		// start ADC measurement
-		while (ADCSRA & (1 << ADSC) );	// wait till conversion complete
-		if (voltage != ADCH) continue;	// bouncy result, try again
-		if (voltage <  13) return 0;	// no key has been pressed
+		ADCSRA |= (1 << ADSC);		/* start ADC measurement */
+		while (ADCSRA & (1 << ADSC) );	/* wait till conversion complete */
+		if (voltage != ADCH) continue;	/* bouncy result, try again */
+		if (voltage <  13) return 0;	/* no key has been pressed */
 
-		// If we made it this far, then we've got something valid
-		// These values calculated with Vdd = 5 volts DC
+		/* If we made it this far, then we've got something valid */
+		/* These values calculated with Vdd = 5 volts DC */
 
-		// 4.64 volts.  ADC value = 246
+		/* 4.64 volts.  ADC value = 246 */
 		if (voltage > 233 ) return KEY_1;
-		// 4.29 volts.  ADC value = 219
+		/* 4.29 volts.  ADC value = 219 */
 		if (voltage > 211 && voltage <= 232) return KEY_2;
-		// 3.93 volts.  ADC value = 201
+		/* 3.93 volts.  ADC value = 201 */
 		if (voltage > 192 && voltage <= 210) return KEY_3;
-		// 3.57 volts.  ADC value = 183
+		/* 3.57 volts.  ADC value = 183 */
 		if (voltage > 174 && voltage <= 191) return KEY_4;
-		// 3.21 volts.  ADC value = 165
+		/* 3.21 volts.  ADC value = 165 */
 		if (voltage > 155 && voltage <= 173) return KEY_5;
-		// 2.86 volts.  ADC value = 146
+		/* 2.86 volts.  ADC value = 146 */
 		if (voltage > 137 && voltage <= 154) return KEY_6;
-		// 2.50 volts.  ADC value = 128
+		/* 2.50 volts.  ADC value = 128 */
 		if (voltage > 119 && voltage <= 136) return KEY_7;
-		// 2.14 volts.  ADC value = 110
+		/* 2.14 volts.  ADC value = 110 */
 		if (voltage > 101 && voltage <= 118) return KEY_8;
-		// 1.79 volts.  ADC value = 91
+		/* 1.79 volts.  ADC value = 91 */
 		if (voltage > 82  && voltage <= 100) return KEY_9;
-		// 1.42 volts.  ADC value = 73
+		/* 1.42 volts.  ADC value = 73 */
 		if (voltage > 64  && voltage <=  81) return KEY_STAR;
-		// 1.07 volts.  ADC value = 55
+		/* 1.07 volts.  ADC value = 55 */
 		if (voltage > 46  && voltage <=  63) return KEY_0;
-		// 0.71 volts.  ADC value = 37
+		/* 0.71 volts.  ADC value = 37 */
 		if (voltage > 27  && voltage <=  45) return KEY_HASH;
-		// 0.357 volts.  ADC value = 18
+		/* 0.357 volts.  ADC value = 18 */
 		if (voltage > 16   && voltage <=  26) return KEY_SEIZE;
-		// We shouldn't get past here,
-		// but if we do, treat it like no key detected.
+		/* We shouldn't get past here, */
+		/* but if we do, treat it like no key detected. */
 		break;
 	}
 	return 0;
 }  /* uint8_t getkey() */
-#else	// We're using a 16-key keypad
+#else	/* We're using a 16-key keypad */
 #error 16-keys not yet implemented
 #endif
 
 
+/*
+ * PB0 is output, PB2 is input
+ * PB3 and PB4 are for the crystal
+ *
+ */
 void init_ports(void)
 {
 	cli();
-	// PB0 is output, PB2 is input
-	// PB3 and PB4 are for the crystal
 	DDRB  = 0b11100011;
 	TIMSK |= (1<<TOIE0);
 	sei();
@@ -897,26 +903,29 @@ void init_ports(void)
  */
 void init_adc()
 {
-	// 8-bit resolution
-	// set ADLAR to 1 to enable the left-shift result
-	// (only bits ADC9..ADC2 are available), then
-	// only reading ADCH is sufficient for 8-bit results (256 values)
+	/*
+	 * 8-bit resolution
+	 * set ADLAR to 1 to enable the left-shift result
+	 * (only bits ADC9..ADC2 are available), then
+	 * only reading ADCH is sufficient for 8-bit results (256 values)
+	 */
 	ADMUX =
-		(1 << ADLAR) |	// left shift result
-		(0 << REFS1) |	// set ref voltage to VCC, bit 1
-		(0 << REFS0) |	// set ref voltage to VCC, bit 0
-		(0 << MUX3)  |	// use ADC1 for input (PB2), MUX bit 3
-		(0 << MUX2)  |  // use ADC1 for input (PB2), MUX bit 2
-		(0 << MUX1)  |  // use ADC1 for input (PB2), MUX bit 1
-		(1 << MUX0);	// use ADC1 for input (PB2), MUX bit 0
+		(1 << ADLAR) |	/* left shift result */
+		(0 << REFS1) |	/* set ref voltage to VCC, bit 1 */
+		(0 << REFS0) |	/* set ref voltage to VCC, bit 0 */
+		(0 << MUX3)  |	/* use ADC1 for input (PB2), MUX bit 3 */
+		(0 << MUX2)  |  /* use ADC1 for input (PB2), MUX bit 2 */
+		(0 << MUX1)  |  /* use ADC1 for input (PB2), MUX bit 1 */
+		(1 << MUX0);	/* use ADC1 for input (PB2), MUX bit 0 */
 
-	// using a 20MHz crystal.  setting prescaler to 128 gives me a
-	// frequency of 156.250 kHz
+	/* Using a 20MHz crystal.
+	 * Setting prescaler to 128 gives me a frequency of 156.250 kHz
+	 */
 	ADCSRA =
-		(1 << ADEN)  |	// enable ADC
-		(1 << ADPS2) |	// set prescaler to 128, bit 2
-		(1 << ADPS1) |	// set prescaler to 128, bit 1
-		(1 << ADPS0);	// set prescaler to 128, bit 0
+		(1 << ADEN)  |	/* enable ADC */
+		(1 << ADPS2) |	/* set prescaler to 128, bit 2 */
+		(1 << ADPS1) |	/* set prescaler to 128, bit 1 */
+		(1 << ADPS0);	/* set prescaler to 128, bit 0 */
 	return;
 } /* void init_adc() */
 
@@ -1027,18 +1036,19 @@ ISR(TIM0_OVF_vect)
 		tone_a_place -= (SINE_SAMPLES << STEP_SHIFT);
 	if(tone_b_place >= (SINE_SAMPLES << STEP_SHIFT))
 		tone_b_place -= (SINE_SAMPLES << STEP_SHIFT);
-	} else OCR0A = SINE_MIDPOINT; // send 0V to PWM output
+	} else OCR0A = SINE_MIDPOINT; /* Send 0V to PWM output */
 
-	// count milliseconds
+	/* Count milliseconds */
 	millisec_counter--;
 	if(millisec_counter == 0) {
 		millisec_counter = OVERFLOW_PER_MILLISEC;
 		millisec_flag = TRUE;
 
-		// This is a secondary millisecond counter that is turned
-		// on only when we're waiting for a key to be pressed
-		// and held.  If it times out, then we set a flag to let
-		// the main loop know that a long press has occurred.
+		/* This is a secondary millisecond counter that is turned
+		 * on only when we're waiting for a key to be pressed
+		 * and held.  If it times out, then we set a flag to let
+		 * the main loop know that a long press has occurred.
+		 */
 		if (longpress_on) {
 			longpress_counter--;
 			longpress_flag = 0;
