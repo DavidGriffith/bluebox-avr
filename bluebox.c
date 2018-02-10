@@ -417,8 +417,6 @@ int main(void)
 	/* Main Loop
 	 *
 	 * Get the next keystroke.
-	 * The 2600 key in a 13-key device always plays 2600Hz no matter if
-	 *   we're in normal or playback modes.
 	 * If we're in playback mode, play the sequence corresponding to
 	 *   that key.
 	 * Otherwise, play the tone for that key.
@@ -431,12 +429,9 @@ int main(void)
 			key = getkey();
 		} while (key == KEY_NOTHING);
 
-		if (playback_mode) {
-			if (key == KEY_SEIZE)
-				process_key(key, FALSE);
-			else
-				eeprom_playback(key);
-		} else
+		if (playback_mode)
+			process_key(key, FALSE);
+		else
 			process_key(key, FALSE);
 
 		process_longpress(key);
@@ -491,6 +486,14 @@ void eeprom_playback(uint8_t key)
 	uint16_t chunk;
 	uint8_t i;
 	uint8_t tone_mode_temp;
+
+	/* The 2600 key always plays 2600 in normal or playback modes. */
+#ifdef KEYS_13
+	if (key == KEY_SEIZE) {
+		process_key(key, FALSE);
+		return;
+	}
+#endif
 
 	chunk = key2chunk(key);
 	if ((void *)chunk == NULL) {
