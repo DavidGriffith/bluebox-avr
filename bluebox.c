@@ -434,7 +434,7 @@ int main(void)
 		} while (key == KEY_NOTHING);
 
 		if (playback_mode)
-			process_key(key, FALSE);
+			eeprom_playback(key);
 		else
 			process_key(key, FALSE);
 
