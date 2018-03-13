@@ -734,6 +734,7 @@ void process_key(uint8_t key, bool pause)
 		}
 		if (pause) sleep_ms(PULSE_PAUSE);
 	}
+	return;
 } /* void process_key(uint8_t key, bool pause) */
 
 
@@ -804,7 +805,7 @@ uint8_t getkey(void)
 		/* but if we do, treat it like no key detected. */
 		break;
 	}
-	return 0;
+	return KEY_NOTHING;
 }  /* uint8_t getkey(void) */
 
 
@@ -880,6 +881,7 @@ void init_ports(void)
 	DDRB  = 0b11100011;
 	TIMSK |= (1<<TOIE0);
 	sei();
+	return;
 }
 
 
@@ -957,6 +959,7 @@ void play(uint32_t duration, uint32_t freq_a, uint32_t freq_b)
 	tones_on = TRUE;
 	sleep_ms(duration);
 	tones_on = FALSE;
+	return;
 }
 
 
@@ -977,6 +980,7 @@ void pulse(uint8_t count)
 		play(66, SEIZE, SEIZE);
 		sleep_ms(34);
 	}
+	return;
 }
 
 
@@ -1004,6 +1008,7 @@ void sleep_ms(uint16_t milliseconds)
 			tick();
 		}
 	}
+	return;
 }
 
 void tick(void) {}
@@ -1057,6 +1062,7 @@ ISR(TIM0_OVF_vect)
 			}
 		}
 	}
+	return;
 } /* ISR(TIM0_OVF_vect) */
 
 
@@ -1091,6 +1097,7 @@ static inline void rbuf_init(rbuf_t* const buffer)
 		buffer->out   = buffer->buffer;
 		buffer->count = 0;
 	}
+	return;
 }
 
 
@@ -1166,6 +1173,7 @@ static inline void rbuf_insert(rbuf_t* const buffer, const rbuf_data_t data)
 			buffer->in = buffer->buffer;
 		buffer->count++;
 	}
+	return;
 }
 
 
