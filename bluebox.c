@@ -443,8 +443,8 @@ int main(void)
 	 */
 	if (startup_set) {
 		play(75, 1700, 1700);
-		eeprom_update_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE, tone_mode);
-		eeprom_update_byte(( uint8_t *)EEPROM_STARTUP_TONE_LENGTH, tone_length);
+		eeprom_update_byte((uint8_t *)EEPROM_STARTUP_TONE_MODE, tone_mode);
+		eeprom_update_byte((uint8_t *)EEPROM_STARTUP_TONE_LENGTH, tone_length);
 		eeprom_busy_wait();
 		play(1000, 1500, 1500);
 	} else {
