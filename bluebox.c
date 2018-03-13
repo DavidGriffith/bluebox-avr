@@ -376,7 +376,7 @@ int main(void)
 		}
 	}
 
-/* This chunk is relevant only for 13-key blueboxes. */
+/* Startup sequence for 13-key blueboxes. */
 #ifdef KEYS_13
 	key = getkey();		/* What key is held on startup? */
 
@@ -389,6 +389,7 @@ int main(void)
 		} while (key == KEY_NOTHING);
 	}
 
+	/* We're changing modes. */
 	switch (key) {
 	case KEY_1:	tone_mode = MODE_MF; break;
 	case KEY_2:	tone_mode = MODE_DTMF; break;
@@ -404,6 +405,7 @@ int main(void)
 			break;
 	}
 
+	/* If 2600 was held on startup, save the new mode as default */
 	if (startup_set) {
 		play(75, 1700, 1700);
 		eeprom_update_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE, tone_mode);
@@ -441,7 +443,7 @@ int main(void)
 		process_longpress(key);
 	}
 	return 0;
-} /* void main() */
+} /* int main(void) */
 
 
 /*
@@ -472,7 +474,7 @@ void eeprom_store(uint8_t key)
 	eeprom_busy_wait();
 
 	play(1000, 1500, 1500);
-}
+} /* void eeprom_store(uint8_t key) */
 
 
 /*
@@ -521,8 +523,9 @@ void eeprom_playback(uint8_t key)
 		process_key(mem[i], TRUE);
 	}
 	tone_mode = tone_mode_temp;
+
 	return;
-}
+} /* void eeprom_playback(uint_t key) */
 
 
 /*
@@ -548,7 +551,7 @@ uint16_t key2chunk(uint8_t key)
 	case KEY_HASH:	return EEPROM_MEM12; break;
 	default: return (uint16_t) NULL;
 	}
-}
+} /* uint16_t key2chunk(uint8_t key) */
 
 
 /*
@@ -731,7 +734,7 @@ void process_key(uint8_t key, bool pause)
 		}
 		if (pause) sleep_ms(PULSE_PAUSE);
 	}
-} /* void process_key(uint8_t key) */
+} /* void process_key(uint8_t key, bool pause) */
 
 
 #ifdef KEYS_13
@@ -802,7 +805,7 @@ uint8_t getkey(void)
 		break;
 	}
 	return 0;
-}  /* uint8_t getkey() */
+}  /* uint8_t getkey(void) */
 
 
 /*
@@ -860,7 +863,7 @@ void process_longpress(uint8_t key)
 	just_flipped = FALSE;
 	just_wrote = FALSE;
 	return;
-}
+} /* void process_longpress(uint8_t key) */
 #else	/* We're using a 16-key keypad */
 #error 16-keys not yet implemented
 #endif
@@ -897,7 +900,7 @@ void init_ports(void)
  *    http://www.marcelpost.com/wiki/index.php/ATtiny85_ADC
  *
  */
-void init_adc()
+void init_adc(void)
 {
 	/*
 	 * 8-bit resolution
@@ -923,7 +926,7 @@ void init_adc()
 		(1 << ADPS1) |	/* set prescaler to 128, bit 1 */
 		(1 << ADPS0);	/* set prescaler to 128, bit 0 */
 	return;
-} /* void init_adc() */
+} /* void init_adc(void) */
 
 
 /*
@@ -1054,7 +1057,7 @@ ISR(TIM0_OVF_vect)
 			}
 		}
 	}
-}
+} /* ISR(TIM0_OVF_vect) */
 
 
 /*
