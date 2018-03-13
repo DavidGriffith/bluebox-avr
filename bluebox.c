@@ -1,23 +1,54 @@
 /*
  * Name:	bluebox.c
  * Author:	David Griffith <dave@661.org>
- * Date:	September 2, 2017
+ * Date:	March 13, 2018
  * License:	GNU GPL v3
  * Version:	0
  *
  * Fuse Settings:	L:FF H:DB
  *
  * This program implements a bluebox, DTMF dialer, redbox, greenbox, and
- * 2600 pulse dialer with PWM synthesis on an AVR ATtiny85 8-pin
- * microcontroller.  A single pin detects 13 buttons through an ADC
- * using a resistor ladder.  There are 12 memory slots of up to 40 tones
- * each.  Power-on defaults are configurable.
+ * 2600 pulse dialer with PWM synthesis on an AVR microcontroller.  Currently
+ * only the ATtiny85 8-pin microcontroller is supported.
  *
- * This program was directly inspired by Don Froula's PicBasicPro program
- * for implementing a bluebox on a PIC12F683 8-pin microcontroller.  No code
- * was reused from that program because of the wide differences between
- * PicBasicPro and C.
- * See http://projectmf.org/bluebox.html for more information on this.
+ * On powerup, the keypad is checked to see which key was held down.
+ * Holding down any key from 1 to 0 and star will select the tone mode
+ * corresponding to that key.  This setting is lost when the bluebox is
+ * switched off.  To set the powerup mode, first hold 2600 and then press
+ * the key for the desired tone mode.  The star key will toggle between
+ * fast (75ms) or slow (120ms) tone durations for MF and
+ * DTMF modes.  This can also be saved as a powerup default.
+ *
+ * To toggle to or from playback mode, press and hold the 2600 key for
+ * two seconds.  A low-high chirp will be played when going into
+ * playback mode and a high-low chirp will be played when going back
+ * into normal mode.  The bluebox always powers up in normal mode.
+ *
+ * The bluebox tracks the last 40 keystrokes after powerup or toggle
+ * from playback mode.  There are twelve memory locations - one for each
+ * of the numeric keys and the star and hash keys.  To save a sequence
+ * of keystrokes, enter the desired sequence, then press and hold a key
+ * other than 2600 for two seconds.  A short-long chirp will be played
+ * to indicate that the sequence and tone mode has been saved.  This means
+ * you can have an MF sequence in one memory, a DTMF sequence in another
+ * and so on.  Sequences cannot be saved when in playback mode.
+ *
+ * To play back a sequence, first toggle the bluebox into playback mode.
+ * Then press the key for the desired memory location.  The sequence
+ * will then be played back using the tone mode the bluebox was in when
+ * the sequence was saved.
+ *
+ * To clear a memory location, first clear the keystroke buffer.  This
+ * happens when the bluebox is turned on and when toggling out of playback
+ * mode.  Then press and hold the key for the memory location you want
+ * to clear.
+ *
+ * Resistor network detection values assume a network of fourteen (for
+ * 13-key keypad) or seventeen (for 16-key keypad) 1K ohm
+ * resistors in series, from Vdd to Vss, with a tap between each
+ * resistor pair.  A single pin then samples the voltage received from
+ * the resistor ladder to determine the key pressed.  To avoid ADC issues
+ * when trying to read at the voltage rails, taps at Vdd and Vss are not used.
  *
  * For all you naysayers, this program and the hardware on which it runs
  * are perfectly legal now.  The modern commercial switching offices have
@@ -26,11 +57,11 @@
  * set up to allow for this kind of thing.  Information on this can be
  * found at http://projectmf.org/.
  *
- * Resistor network detection values assume a network of fourteen (for
- * 13-key keypad) or seventeen (for 16-key keypad) 1K ohm
- * resistors in series, from Vdd to Vss, with a tap between each
- * resistor pair.  Taps at Vdd and Vss are not used, to avoid ADC issues
- * when trying to read at the voltage rails.
+ * This program was directly inspired by Don Froula's PicBasicPro program
+ * for implementing a bluebox on a PIC12F683 8-pin microcontroller.  No code
+ * was reused from that program because of the wide differences between
+ * PicBasicPro and C.
+ * See http://projectmf.org/bluebox.html for more information on this.
  *
  * Many thanks go to the denizens of #AVR on irc.freenode.net for
  * answering my questions on sine wave generation.
