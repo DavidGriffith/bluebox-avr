@@ -432,11 +432,15 @@ int main(void)
 			else
 				tone_length = TONE_LENGTH_FAST;
 			break;
-	default:	play(1000, 440, 440);
+	default:	play(1000, 440, 440);	/* Normal startup tone. */
 			break;
 	}
 
-	/* If 2600 was held on startup, save the new mode as default */
+	/*
+	 * If 2600 was held on startup, save the new mode as default,
+	 * then chirp high-low.  Otherwise, we're simply setting a mode and
+	 * not saving, so then just chirp high.
+	 */
 	if (startup_set) {
 		play(75, 1700, 1700);
 		eeprom_update_byte(( uint8_t *)EEPROM_STARTUP_TONE_MODE, tone_mode);
@@ -1079,7 +1083,8 @@ ISR(TIM0_OVF_vect)
 		millisec_counter = OVERFLOW_PER_MILLISEC;
 		millisec_flag = TRUE;
 
-		/* This is a secondary millisecond counter that is turned
+		/*
+		 * This is a secondary millisecond counter that is turned
 		 * on only when we're waiting for a key to be pressed
 		 * and held.  If it times out, then we set a flag to let
 		 * the main loop know that a long press has occurred.
