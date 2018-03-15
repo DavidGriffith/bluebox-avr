@@ -313,7 +313,8 @@ do { \
  * zeroth byte.  Then came across a warning from Atmel not to do that.
  * I can't remember where I found that warning.
  */
-uint8_t ee_data[] EEMEM = {0xff, MODE_MF, TONE_LENGTH_FAST};
+//uint8_t ee_data[] EEMEM = {0xff, MODE_MF, TONE_LENGTH_FAST};
+uint8_t ee_data[] EEMEM = {0xff, MODE_MF, TONE_LENGTH_FAST, MODE_GREENBOX, 1,2,3,4,5,6,7,8,9,10,11,12,0};
 
 uint8_t tone_mode;
 uint8_t tone_length;
@@ -528,6 +529,9 @@ void eeprom_playback(uint8_t key)
 	uint8_t i;
 	uint8_t tone_mode_temp;
 
+	uint8_t last_key;
+	bool	keys_up = FALSE;
+
 	/* The 2600 key always plays 2600 in normal or playback modes. */
 #ifdef KEYS_13
 	if (key == KEY_SEIZE) {
@@ -554,6 +558,27 @@ void eeprom_playback(uint8_t key)
 	tone_mode = mem[0];
 
 	for (i = 1; i < EEPROM_CHUNK_SIZE; i++) {
+
+		/*
+		 * This block of code is supposed to wait for the key to be released
+		 * and then the next time a key is pressed, abort playback.
+		 * However... It only works once after the bluebox is powered up and
+		 * shifted into playback mode.  Subsequent playbacks are not aborted.
+		 * Also, if a key other than 2600 is pressed in normal mode prior to
+		 * shifting into playback mode, playback are not aborted.  So, there
+		 * seems to be something that happens to the state of the AVR when a
+		 * non-2600 tone is played that makes last_key always FALSE in this
+		 * function.
+		 *
+		 */
+		last_key = getkey();
+		if (last_key == KEY_NOTHING) keys_up = TRUE;
+		if (keys_up && last_key) {
+			last_key = KEY_NOTHING;
+			keys_up = FALSE;
+			break;	/* Abort playback between tones. */
+		}
+
 		if (mem[i] == 0xff) break;
 		process_key(mem[i], TRUE);
 	}
