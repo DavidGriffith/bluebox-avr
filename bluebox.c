@@ -836,31 +836,31 @@ uint8_t getkey(void)
 		/* These values calculated with Vdd = 5 volts DC */
 
 		/* 4.64 volts.  ADC value = 246 */
-		if (voltage > 233 ) return KEY_1;
+		if (voltage > 233 ) return KEY_SEIZE;
 		/* 4.29 volts.  ADC value = 219 */
-		if (voltage > 211 && voltage <= 232) return KEY_2;
+		if (voltage > 211 && voltage <= 232) return KEY_1;
 		/* 3.93 volts.  ADC value = 201 */
-		if (voltage > 192 && voltage <= 210) return KEY_3;
+		if (voltage > 192 && voltage <= 210) return KEY_2;
 		/* 3.57 volts.  ADC value = 183 */
-		if (voltage > 174 && voltage <= 191) return KEY_4;
+		if (voltage > 174 && voltage <= 191) return KEY_3;
 		/* 3.21 volts.  ADC value = 165 */
-		if (voltage > 155 && voltage <= 173) return KEY_5;
+		if (voltage > 155 && voltage <= 173) return KEY_4;
 		/* 2.86 volts.  ADC value = 146 */
-		if (voltage > 137 && voltage <= 154) return KEY_6;
+		if (voltage > 137 && voltage <= 154) return KEY_5;
 		/* 2.50 volts.  ADC value = 128 */
-		if (voltage > 119 && voltage <= 136) return KEY_7;
+		if (voltage > 119 && voltage <= 136) return KEY_6;
 		/* 2.14 volts.  ADC value = 110 */
-		if (voltage > 101 && voltage <= 118) return KEY_8;
+		if (voltage > 101 && voltage <= 118) return KEY_7;
 		/* 1.79 volts.  ADC value = 91 */
-		if (voltage > 82  && voltage <= 100) return KEY_9;
+		if (voltage > 82  && voltage <= 100) return KEY_8;
 		/* 1.42 volts.  ADC value = 73 */
-		if (voltage > 64  && voltage <=  81) return KEY_STAR;
+		if (voltage > 64  && voltage <=  81) return KEY_9;
 		/* 1.07 volts.  ADC value = 55 */
-		if (voltage > 46  && voltage <=  63) return KEY_0;
+		if (voltage > 46  && voltage <=  63) return KEY_STAR;
 		/* 0.71 volts.  ADC value = 37 */
-		if (voltage > 27  && voltage <=  45) return KEY_HASH;
+		if (voltage > 27  && voltage <=  45) return KEY_0;
 		/* 0.357 volts.  ADC value = 18 */
-		if (voltage > 16   && voltage <=  26) return KEY_SEIZE;
+		if (voltage > 16   && voltage <=  26) return KEY_HASH;
 		/* We shouldn't get past here, */
 		/* but if we do, treat it like no key detected. */
 		break;
