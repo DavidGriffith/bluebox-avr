@@ -313,8 +313,7 @@ do { \
  * zeroth byte.  Then came across a warning from Atmel not to do that.
  * I can't remember where I found that warning.
  */
-//uint8_t ee_data[] EEMEM = {0xff, MODE_MF, TONE_LENGTH_FAST};
-uint8_t ee_data[] EEMEM = {0xff, MODE_MF, TONE_LENGTH_FAST, MODE_GREENBOX, 1,2,3,4,5,6,7,8,9,10,11,12,0};
+uint8_t ee_data[] EEMEM = {0xff, MODE_MF, TONE_LENGTH_FAST};
 
 uint8_t tone_mode;
 uint8_t tone_length;
