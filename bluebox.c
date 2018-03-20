@@ -528,9 +528,6 @@ void eeprom_playback(uint8_t key)
 	uint8_t i;
 	uint8_t tone_mode_temp;
 
-	uint8_t last_key;
-	bool	keys_up = FALSE;
-
 	/* The 2600 key always plays 2600 in normal or playback modes. */
 #ifdef KEYS_13
 	if (key == KEY_SEIZE) {
