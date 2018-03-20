@@ -906,8 +906,10 @@ void process_longpress(uint8_t key)
 
 
 /*
- * PB0 is output, PB2 is input
- * PB3 and PB4 are for the crystal
+ * PB0 is audio output.
+ * PB1 is LED output.  Pull down to light LEDs.
+ * PB2 is input from the resistor ladder.
+ * PB3 and PB4 are for the crystal.
  *
  */
 void init_ports(void)
@@ -915,6 +917,7 @@ void init_ports(void)
 	cli();
 	DDRB  = 0b11100011;
 	TIMSK |= (1<<TOIE0);
+	PORTB &= ~(1 << PB1);	/* Make sure LEDs are off. */
 	sei();
 	return;
 }
@@ -991,9 +994,13 @@ void play(uint32_t duration, uint32_t freq_a, uint32_t freq_b)
 
 	tone_a_place = 0;
 	tone_b_place = 0;
+
+	PORTB |= (1 << PB1);	/* Turn on LEDs. */
 	tones_on = TRUE;
 	sleep_ms(duration);
 	tones_on = FALSE;
+	PORTB &= ~(1 << PB1);	/* Turn off LEDs. */
+
 	return;
 }
 
