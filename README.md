@@ -1,3 +1,6 @@
+**This project has moved to https://gitlab.com/DavidGriffith/bluebox-avr**
+
+
 **Bluebox AVR**
 ===============
 
